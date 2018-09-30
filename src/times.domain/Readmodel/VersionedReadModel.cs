@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace times.domain.Readmodel
+namespace Racetimes.Domain.Readmodel
 {
     public class VersionedReadModel : IReadModel
     {

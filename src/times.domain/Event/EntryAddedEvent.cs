@@ -1,9 +1,9 @@
-﻿using times.domain.Aggregate;
-using times.domain.Identity;
+﻿using Racetimes.Domain.Aggregate;
+using Racetimes.Domain.Identity;
 using EventFlow.Aggregates;
 using EventFlow.EventStores;
 
-namespace times.domain.Event
+namespace Racetimes.Domain.Event
 {
     [EventVersion("EntryAdded", 1)]
     public class EntryAddedEvent : IAggregateEvent<CompetitionAggregate, CompetitionId>

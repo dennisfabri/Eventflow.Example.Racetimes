@@ -1,6 +1,6 @@
 ﻿using EventFlow.Core;
 
-namespace times.domain.Identity
+namespace Racetimes.Domain.Identity
 {
     public class EntryId : Identity<EntryId>
     {

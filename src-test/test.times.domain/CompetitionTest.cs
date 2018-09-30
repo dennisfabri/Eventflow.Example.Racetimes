@@ -1,16 +1,16 @@
 using System.Threading;
-using times.domain.Command;
-using times.domain.CommandHandler;
-using times.domain.Event;
-using times.domain.Identity;
-using times.domain.Readmodel;
+using Racetimes.Domain.Command;
+using Racetimes.Domain.CommandHandler;
+using Racetimes.Domain.Event;
+using Racetimes.Domain.Identity;
+using Racetimes.Domain.Readmodel;
 using EventFlow;
 using EventFlow.Extensions;
 using EventFlow.Queries;
 using FluentAssertions;
 using Xunit;
 
-namespace test.times.domain
+namespace Test.Racetimes.Domain
 {
     public class CompetitionTest
     {

@@ -1,11 +1,11 @@
 ﻿using EventFlow.Aggregates;
 using System.Collections.Generic;
 using System.Linq;
-using times.domain.Aggregate;
-using times.domain.Event;
-using times.domain.Identity;
+using Racetimes.Domain.Aggregate;
+using Racetimes.Domain.Event;
+using Racetimes.Domain.Identity;
 
-namespace times.domain.Readmodel
+namespace Racetimes.Domain.Readmodel
 {
     public class EntryLocator : IEntryLocator
     {

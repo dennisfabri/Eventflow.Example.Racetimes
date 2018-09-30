@@ -1,12 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using times.domain.Aggregate;
-using times.domain.Command;
-using times.domain.Identity;
+using Racetimes.Domain.Aggregate;
+using Racetimes.Domain.Command;
+using Racetimes.Domain.Identity;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 
-namespace times.domain.CommandHandler
+namespace Racetimes.Domain.CommandHandler
 {
     public class DeleteCompetitionHandler : CommandHandler<CompetitionAggregate, CompetitionId, IExecutionResult, DeleteCompetitionCommand>
     {

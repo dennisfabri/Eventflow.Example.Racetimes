@@ -1,6 +1,6 @@
 ﻿using System;
-using times.domain.Event;
-using times.domain.Identity;
+using Racetimes.Domain.Event;
+using Racetimes.Domain.Identity;
 using EventFlow.Aggregates;
 using EventFlow.Aggregates.ExecutionResults;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using EventFlow.Snapshots.Strategies;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace times.domain.Aggregate
+namespace Racetimes.Domain.Aggregate
 {
     [AggregateName("Competition")]
     public class CompetitionAggregate :

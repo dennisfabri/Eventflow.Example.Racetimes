@@ -1,4 +1,4 @@
-﻿namespace times.domain.Aggregate
+﻿namespace Racetimes.Domain.Aggregate
 {
     interface IDeletable
     {

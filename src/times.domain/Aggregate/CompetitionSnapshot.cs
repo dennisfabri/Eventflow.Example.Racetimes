@@ -1,7 +1,7 @@
 ﻿using EventFlow.Snapshots;
 using System;
 
-namespace times.domain.Aggregate
+namespace Racetimes.Domain.Aggregate
 {
     [Serializable]
     [SnapshotVersion("Competition", 1)]

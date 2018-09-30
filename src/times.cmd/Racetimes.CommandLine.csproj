@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <StartupObject>times.cmd.Program</StartupObject>
+    <StartupObject>Racetimes.CommandLine.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\times.domain\times.domain.csproj" />
+    <ProjectReference Include="..\times.domain\Racetimes.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

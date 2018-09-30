@@ -1,8 +1,8 @@
 ﻿using EventFlow.Entities;
 using System;
-using times.domain.Identity;
+using Racetimes.Domain.Identity;
 
-namespace times.domain.Aggregate
+namespace Racetimes.Domain.Aggregate
 {
     public class EntryEntity : Entity<EntryId>
     {

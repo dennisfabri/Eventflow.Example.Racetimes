@@ -1,10 +1,10 @@
-﻿using times.domain.Aggregate;
-using times.domain.Event;
-using times.domain.Identity;
+﻿using Racetimes.Domain.Aggregate;
+using Racetimes.Domain.Event;
+using Racetimes.Domain.Identity;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 
-namespace times.domain.Readmodel
+namespace Racetimes.Domain.Readmodel
 {
     public class EntryReadModel : VersionedReadModel,
         IAmReadModelFor<CompetitionAggregate, CompetitionId, EntryAddedEvent>,

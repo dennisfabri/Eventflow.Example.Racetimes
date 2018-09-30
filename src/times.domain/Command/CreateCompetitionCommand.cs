@@ -1,9 +1,9 @@
-﻿using times.domain.Aggregate;
-using times.domain.Identity;
+﻿using Racetimes.Domain.Aggregate;
+using Racetimes.Domain.Identity;
 using EventFlow.Aggregates.ExecutionResults;
 using EventFlow.Commands;
 
-namespace times.domain.Command
+namespace Racetimes.Domain.Command
 {
     public class CreateCompetitionCommand : Command<CompetitionAggregate, CompetitionId, IExecutionResult>
     {

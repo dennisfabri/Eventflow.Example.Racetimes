@@ -1,24 +1,22 @@
 ﻿using System.Threading;
-using times.domain.Command;
-using times.domain.CommandHandler;
-using times.domain.Event;
-using times.domain.Identity;
-using times.domain.Readmodel;
+using Racetimes.Domain.Command;
+using Racetimes.Domain.CommandHandler;
+using Racetimes.Domain.Event;
+using Racetimes.Domain.Identity;
+using Racetimes.Domain.Readmodel;
 using EventFlow;
 using EventFlow.Extensions;
 using EventFlow.MsSql;
 using EventFlow.MsSql.EventStores;
 using EventFlow.MsSql.Extensions;
 using EventFlow.Queries;
-using System;
-using System.Linq;
-using times.domain.Aggregate;
+using Racetimes.Domain.Aggregate;
 using log4net;
 using System.Reflection;
 using log4net.Config;
 using System.IO;
 
-namespace times.cmd
+namespace Racetimes.CommandLine
 {
     class Program
     {
