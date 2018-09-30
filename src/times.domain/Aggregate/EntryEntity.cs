@@ -17,14 +17,16 @@ namespace times.domain.Aggregate
             TimeInMillis = timeInMillis;
         }
 
+        public EntryEntity(EntrySnapshot es) : this(es.Id, es.Discipline, es.Name, es.TimeInMillis) { }
+
         public void ChangeTime(int timeInMillis)
         {
             TimeInMillis = timeInMillis;
         }
 
-        public Tuple<string, string, string, int> CreateSnapshot()
+        public EntrySnapshot CreateSnapshot()
         {
-            return new Tuple<string, string, string, int>(Id.Value, Discipline, Name, TimeInMillis);
+            return new EntrySnapshot(Id, Name, Discipline, TimeInMillis);
         }
     }
 }

@@ -41,7 +41,7 @@ namespace times.domain.Aggregate
             return !IsNew && !IsDeleted;
         }
 
-        public CompetitionAggregate(CompetitionId id) : base(id, SnapshotEveryFewVersionsStrategy.With(int.MaxValue)) { }
+        public CompetitionAggregate(CompetitionId id) : base(id, SnapshotEveryFewVersionsStrategy.Default) { }
 
         public IExecutionResult Create(string user, string name)
         {
@@ -145,18 +145,24 @@ namespace times.domain.Aggregate
             Competitionname = snapshot.Competitionname;
             IsDeleted = snapshot.IsDeleted;
             User = snapshot.User;
-            Entries = new List<EntryEntity>(snapshot.Entries.Select(e => new EntryEntity(new EntryId(e.Item1), e.Item2, e.Item3, e.Item4)));
+            Entries = new List<EntryEntity>(snapshot.Entries.Select(e => new EntryEntity(e)));
         }
 
         protected override Task<CompetitionSnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(CreateSnapshot(cancellationToken));
+            // Note:
+            // The following code causes the application to hang:
             // return new Task<CompetitionSnapshot>(() => CreateSnapshot(cancellationToken));
+            // This version works correctly:
+            return Task.FromResult(CreateSnapshot(cancellationToken));
         }
 
         protected override Task LoadSnapshotAsync(CompetitionSnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken)
         {
-            return new Task(() => LoadSnapshot(snapshot, metadata, cancellationToken));
+            // Note: See comment in CreateSnapshotAsync
+            // return new Task(() => { LoadSnapshot(snapshot, metadata, cancellationToken); return 0; });
+            LoadSnapshot(snapshot, metadata, cancellationToken);
+            return Task.FromResult(0);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace times.domain.Aggregate
     {
         public string Competitionname { get; set; } = "";
         public string User { get; set; } = "";
-        public Tuple<string, string, string, int>[] Entries { get; set; } = new Tuple<string, string, string, int>[0];
+        public EntrySnapshot[] Entries { get; set; } = new EntrySnapshot[0];
         public bool IsDeleted { get; set; } = false;
     }
 }

@@ -13,6 +13,10 @@ using EventFlow.Queries;
 using System;
 using System.Linq;
 using times.domain.Aggregate;
+using log4net;
+using System.Reflection;
+using log4net.Config;
+using System.IO;
 
 namespace times.cmd
 {
@@ -20,27 +24,29 @@ namespace times.cmd
     {
         static void Main(string[] args)
         {
-            // var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-            // XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+            var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+            XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
             using (var resolver = EventFlowOptions.New
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionRenamedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(RenameCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(RenameCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
+                .AddQueryHandler<GetAllEntriesQueryHandler, GetAllEntriesQuery, EntryReadModel[]>()
                 .AddSnapshots(typeof(CompetitionSnapshot))
                 .RegisterServices(sr => { sr.Register<IEntryLocator, EntryLocator>(); })
+                //.UseInMemorySnapshotStore()
+                //.UseInMemoryReadStoreFor<CompetitionReadModel>()
+                // .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>()
                 .UseMssqlEventStore()
                 .UseMsSqlSnapshotStore()
-                // .UseInMemorySnapshotStore()
                 .UseMssqlReadModel<CompetitionReadModel>()
                 .UseMssqlReadModel<EntryReadModel, IEntryLocator>()
-                .ConfigureMsSql(MsSqlConfiguration.New
-                    .SetConnectionString(@"Data Source=localhost;Initial Catalog=TimesEF;Integrated Security=SSPI;"))
+                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(@"Data Source=localhost;Initial Catalog=TimesEF;Integrated Security=SSPI;"))
                 .CreateResolver())
             {
 
-                // var msSqlDatabaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
-                // EventFlowEventStoresMsSql.MigrateDatabase(msSqlDatabaseMigrator);
+                var msSqlDatabaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
+                EventFlowEventStoresMsSql.MigrateDatabase(msSqlDatabaseMigrator);
                 // var sql = EventFlowEventStoresMsSql.GetSqlScripts().Select(s => s.Content).ToArray();
 
                 // Create a new identity for our aggregate root
@@ -78,12 +84,12 @@ namespace times.cmd
                 executionResult = commandBus.Publish(new ChangeEntryTimeCommand(exampleId, entry1Id, 10000), CancellationToken.None);
                 executionResult = commandBus.Publish(new ChangeEntryTimeCommand(exampleId, entry2Id, 20000), CancellationToken.None);
 
-                for (int x = 1; x < 1000; x++)
+                for (int x = 1; x < 100; x++)
                 {
                     executionResult = commandBus.Publish(new ChangeEntryTimeCommand(exampleId, entry2Id, 2000 + x), CancellationToken.None);
                 }
 
-                // executionResult = commandBus.Publish(new DeleteCompetitionCommand(exampleId), CancellationToken.None);
+                executionResult = commandBus.Publish(new DeleteCompetitionCommand(exampleId), CancellationToken.None);
             }
             // Console.ReadLine();
         }
