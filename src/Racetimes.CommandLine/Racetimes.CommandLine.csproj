@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\times.domain\Racetimes.Domain.csproj" />
+    <ProjectReference Include="..\Racetimes.Domain\Racetimes.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

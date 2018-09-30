@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\times.domain\Racetimes.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Racetimes.Domain\Racetimes.Domain.csproj" />
   </ItemGroup>
 
 </Project>
