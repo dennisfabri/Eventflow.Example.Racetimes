@@ -27,3 +27,7 @@ The domain of this project is storing times from races within competitions. Ther
 # Note
 
 This is still a work in progress but I enjoy hearing from you (especially feedback on points I missed, got wrong or could do better).
+
+# Sources
+
+The code is based on the official documentation as well as code from the tests within the eventflow repository.
