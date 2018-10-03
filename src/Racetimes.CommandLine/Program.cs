@@ -32,9 +32,6 @@ namespace Racetimes.CommandLine
                 .AddQueryHandler<GetAllEntriesQueryHandler, GetAllEntriesQuery, EntryReadModel[]>()
                 .AddSnapshots(typeof(CompetitionSnapshot))
                 .RegisterServices(sr => { sr.Register<IEntryLocator, EntryLocator>(); })
-                //.UseInMemorySnapshotStore()
-                //.UseInMemoryReadStoreFor<CompetitionReadModel>()
-                // .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>()
                 .UseMssqlEventStore()
                 .UseMsSqlSnapshotStore()
                 .UseMssqlReadModel<CompetitionReadModel>()
@@ -59,9 +56,6 @@ namespace Racetimes.CommandLine
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var executionResult = commandBus.Publish(new CreateCompetitionCommand(exampleId, user, name), CancellationToken.None);
 
-                // Verify that we didn't trigger our domain validation
-                //executionResult.IsSuccess.Should().BeTrue();
-
                 executionResult = commandBus.Publish(new RenameCompetitionCommand(exampleId, name2), CancellationToken.None);
 
                 // Resolve the query handler and use the built-in query for fetching
@@ -69,10 +63,6 @@ namespace Racetimes.CommandLine
                 // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
                 var exampleReadModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(exampleId), CancellationToken.None);
-
-                // Verify that the read model has the expected magic number
-                //exampleReadModel.Id.Should().Be(exampleId.Value);
-                //exampleReadModel.Name.Should().Be(name);
 
                 var entry1Id = EntryId.New;
                 var entry2Id = EntryId.New;
