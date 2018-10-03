@@ -9,13 +9,16 @@ using EventFlow.Snapshots;
 using EventFlow.Snapshots.Strategies;
 using System.Threading;
 using System.Threading.Tasks;
+using EventFlow.Specifications;
+using EventFlow.Extensions;
+using Racetimes.Domain.Aggregate.Extension;
 
 namespace Racetimes.Domain.Aggregate
 {
     [AggregateName("Competition")]
     public class CompetitionAggregate :
         SnapshotAggregateRoot<CompetitionAggregate, CompetitionId, CompetitionSnapshot>,
-        IDeletable,
+        IDeletableAggregateRoot,
         IEmit<CompetitionCreatedEvent>,
         IEmit<CompetitionRenamedEvent>,
         IEmit<EntryAddedEvent>,
@@ -26,67 +29,78 @@ namespace Racetimes.Domain.Aggregate
         public IList<EntryEntity> Entries { get; private set; } = new List<EntryEntity>();
         public bool IsDeleted { get; private set; } = false;
 
-        internal IExecutionResult Delete()
-        {
-            if (!Exists())
-            {
-                return ExecutionResult.Failed("competition must exist.");
-            }
-            Emit(new CompetitionDeletedEvent(Entries.Select(s => s.Id)));
-            return ExecutionResult.Success();
-        }
-
-        private bool Exists()
-        {
-            return !IsNew && !IsDeleted;
-        }
+        private static ISpecification<IDeletableAggregateRoot> IsNewSpecification = new IsNewSpecification<IDeletableAggregateRoot>();
+        private static ISpecification<IDeletableAggregateRoot> IsNotNewSpecification = new IsNotNewSpecification<IDeletableAggregateRoot>();
+        private static ISpecification<IDeletableAggregateRoot> IsDeletableSpecification = IsNotNewSpecification.And(new IsNotDeletedSpecification<IDeletableAggregateRoot>());
+        private static ISpecification<IDeletableAggregateRoot> IsRenamableSpecification = IsNotNewSpecification.And(new IsNotDeletedSpecification<IDeletableAggregateRoot>());
+        private static ISpecification<string> IsNameEnteredSpecification = new IsNotNullOrEmptySpecification("name");
+        private static ISpecification<string> IsUserEnteredSpecification = new IsNotNullOrEmptySpecification("user");
 
         public CompetitionAggregate(CompetitionId id) : base(id, SnapshotEveryFewVersionsStrategy.Default) { }
 
+        #region Helpers
+
+        private IExecutionResult ExecuteAfterValidation(Func<IAggregateEvent<CompetitionAggregate, CompetitionId>> evt, params Func<IExecutionResult>[] checks)
+        {
+            IExecutionResult ir = null;
+            foreach (var check in checks)
+            {
+                ir = check();
+                if (!ir.IsSuccess)
+                {
+                    return ir;
+                }
+            }
+            IAggregateEvent<CompetitionAggregate, CompetitionId> @event = evt();
+            if (@event != null)
+            {
+                Emit(@event);
+            }
+            return ir ?? ExecutionResult.Success();
+        }
+
+        #endregion
+
+        #region Check and emit
+
+        internal IExecutionResult Delete()
+        {
+            return ExecuteAfterValidation(
+                () => new CompetitionDeletedEvent(Entries.Select(s => s.Id)),
+                () => IsDeletableSpecification.IsNotSatisfiedByAsExecutionResult(this)
+                );
+        }
+
         public IExecutionResult Create(string user, string name)
         {
-            if (!this.IsNew)
-            {
-                return ExecutionResult.Failed("Aggregate must be new.");
-            }
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return ExecutionResult.Failed("name must not be null or emtpy.");
-            }
-            if (string.IsNullOrWhiteSpace(user))
-            {
-                return ExecutionResult.Failed("user must not be null or emtpy.");
-            }
-
-            user = user.Trim();
-            name = name.Trim();
-            if (Competitionname.Equals(name) && User.Equals(user))
-            {
-                return ExecutionResult.Success();
-            }
-            Emit(new CompetitionCreatedEvent(user, name));
-
-            return ExecutionResult.Success();
+            return ExecuteAfterValidation(
+                () =>
+                {
+                    user = user.Trim();
+                    name = name.Trim();
+                    return new CompetitionCreatedEvent(user, name);
+                },
+                () => IsNewSpecification.IsNotSatisfiedByAsExecutionResult(this),
+                () => IsNameEnteredSpecification.IsNotSatisfiedByAsExecutionResult(name),
+                () => IsUserEnteredSpecification.IsNotSatisfiedByAsExecutionResult(user)
+            );
         }
 
         public IExecutionResult Rename(string name)
         {
-            if (Exists())
-            {
-                return ExecutionResult.Failed("competition must exist.");
-            }
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return ExecutionResult.Failed("name must not be null or emtpy.");
-            }
-            name = name.Trim();
-            if (Competitionname.Equals(name))
-            {
-                return ExecutionResult.Success();
-            }
-            Emit(new CompetitionRenamedEvent(name));
-
-            return ExecutionResult.Success();
+            return ExecuteAfterValidation(
+                () =>
+                    {
+                        name = name.Trim();
+                        if (!Competitionname.Equals(name))
+                        {
+                            return new CompetitionRenamedEvent(name);
+                        }
+                        return null;
+                    },
+                () => IsRenamableSpecification.IsNotSatisfiedByAsExecutionResult(this),
+                () => IsNameEnteredSpecification.IsNotSatisfiedByAsExecutionResult(name)
+            );
         }
 
         internal IExecutionResult AddEntry(EntryId entryId, string discipline, string name, int timeInMillis)
@@ -100,6 +114,10 @@ namespace Racetimes.Domain.Aggregate
             Emit(new EntryTimeChangedEvent(entryId, timeInMillis));
             return ExecutionResult.Success();
         }
+
+        #endregion
+
+        #region Apply
 
         public void Apply(CompetitionCreatedEvent aggregateEvent)
         {
@@ -127,6 +145,10 @@ namespace Racetimes.Domain.Aggregate
             EntryEntity entry = Entries.First(e => e.Id == aggregateEvent.EntryId);
             entry.ChangeTime(aggregateEvent.TimeInMillis);
         }
+
+        #endregion
+
+        #region Snapshot
 
         private CompetitionSnapshot CreateSnapshot(CancellationToken cancellationToken)
         {
@@ -164,5 +186,7 @@ namespace Racetimes.Domain.Aggregate
             LoadSnapshot(snapshot, metadata, cancellationToken);
             return Task.FromResult(0);
         }
+
+        #endregion
     }
 }
