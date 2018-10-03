@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="EventFlow" Version="0.66.3673" />
+    <PackageReference Include="EventFlow.MsSql" Version="0.66.3673" />
   </ItemGroup>
 
 </Project>

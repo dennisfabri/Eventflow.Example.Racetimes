@@ -17,7 +17,6 @@ namespace Racetimes.Domain.Readmodel
 
         public void Apply(IReadModelContext context, IDomainEvent<CompetitionAggregate, CompetitionId, EntryAddedEvent> domainEvent)
         {
-            Update();
             Competitor = domainEvent.AggregateEvent.Name;
             Discipline = domainEvent.AggregateEvent.Discipline;
             TimeInMillis = domainEvent.AggregateEvent.TimeInMillis;
@@ -26,7 +25,6 @@ namespace Racetimes.Domain.Readmodel
 
         public void Apply(IReadModelContext context, IDomainEvent<CompetitionAggregate, CompetitionId, EntryTimeChangedEvent> domainEvent)
         {
-            Update();
             TimeInMillis = domainEvent.AggregateEvent.TimeInMillis;
         }
 
