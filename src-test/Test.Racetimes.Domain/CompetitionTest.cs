@@ -55,8 +55,8 @@ namespace Test.Racetimes.Domain
         {
             using (var resolver = EventFlowOptions.New
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionRenamedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler))
+                .AddCommands(typeof(CreateCompetitionCommand), typeof(RenameCompetitionCommand))
+                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(RenameCompetitionHandler))
                 .UseInMemoryReadStoreFor<CompetitionReadModel>()
                 .CreateResolver())
             {
@@ -88,6 +88,46 @@ namespace Test.Racetimes.Domain
                 // Verify that the read model has the expected magic number
                 readModel.AggregateId.Should().Be(domainId.Value);
                 readModel.Competitionname.Should().Be(name2);
+            }
+        }
+
+        [Fact]
+        public void DeleteTest()
+        {
+            using (var resolver = EventFlowOptions.New
+                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionDeletedEvent))
+                .AddCommands(typeof(CreateCompetitionCommand), typeof(DeleteCompetitionCommand))
+                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler))
+                .UseInMemoryReadStoreFor<CompetitionReadModel>()
+                .CreateResolver())
+            {
+                // Create a new identity for our aggregate root
+                var domainId = CompetitionId.New;
+
+                // Define some important value
+                const string name = "test-competition";
+                const string user = "test-user";
+                const string name2 = "new-competition";
+
+                // Resolve the command bus and use it to publish a command
+                var commandBus = resolver.Resolve<ICommandBus>();
+
+                // Create
+                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
+                executionResult.IsSuccess.Should().BeTrue();
+
+                // Rename
+                executionResult = commandBus.Publish(new DeleteCompetitionCommand(domainId), CancellationToken.None);
+                executionResult.IsSuccess.Should().BeTrue();
+
+                // Resolve the query handler and use the built-in query for fetching
+                // read models by identity to get our read model representing the
+                // state of our aggregate root
+                var queryProcessor = resolver.Resolve<IQueryProcessor>();
+                var readModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+
+                // Verify that the read model has the expected magic number
+                readModel.Should().BeNull();
             }
         }
     }
