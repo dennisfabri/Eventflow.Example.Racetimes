@@ -107,7 +107,6 @@ namespace Test.Racetimes.Domain
                 // Define some important value
                 const string name = "test-competition";
                 const string user = "test-user";
-                const string name2 = "new-competition";
 
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
