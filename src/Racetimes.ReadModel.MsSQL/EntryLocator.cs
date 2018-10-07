@@ -5,7 +5,7 @@ using Racetimes.Domain.Aggregate;
 using Racetimes.Domain.Event;
 using Racetimes.Domain.Identity;
 
-namespace Racetimes.Domain.Readmodel
+namespace Racetimes.ReadModel.MsSql
 {
     public class EntryLocator : IEntryLocator
     {

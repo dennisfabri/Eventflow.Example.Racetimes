@@ -1,7 +1,7 @@
 ﻿using EventFlow.MsSql.ReadStores.Attributes;
 using EventFlow.ReadStores;
 
-namespace Racetimes.Domain.Readmodel
+namespace Racetimes.ReadModel.MsSql
 {
     public class VersionedReadModel : IReadModel
     {

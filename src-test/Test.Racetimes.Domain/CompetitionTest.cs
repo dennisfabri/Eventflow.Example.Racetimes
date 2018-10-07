@@ -3,12 +3,12 @@ using Racetimes.Domain.Command;
 using Racetimes.Domain.CommandHandler;
 using Racetimes.Domain.Event;
 using Racetimes.Domain.Identity;
-using Racetimes.Domain.Readmodel;
 using EventFlow;
 using EventFlow.Extensions;
 using EventFlow.Queries;
 using FluentAssertions;
 using Xunit;
+using Racetimes.ReadModel.MsSql;
 
 namespace Test.Racetimes.Domain
 {

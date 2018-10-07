@@ -4,7 +4,7 @@ using Racetimes.Domain.Identity;
 using EventFlow.Aggregates;
 using EventFlow.ReadStores;
 
-namespace Racetimes.Domain.Readmodel
+namespace Racetimes.ReadModel.MsSql
 {
     public class CompetitionReadModel : VersionedReadModel,
         IAmReadModelFor<CompetitionAggregate, CompetitionId, CompetitionCreatedEvent>,

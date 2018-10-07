@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Racetimes.Domain.Readmodel
+namespace Racetimes.ReadModel.MsSql
 {
     public class GetAllEntriesQuery : IQuery<EntryReadModel[]>
     {

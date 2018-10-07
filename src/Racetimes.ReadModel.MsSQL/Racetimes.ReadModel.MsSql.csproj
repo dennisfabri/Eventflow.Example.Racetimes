@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Racetimes.ReadModel.MsSql</AssemblyName>
+    <RootNamespace>Racetimes.ReadModel.MsSql</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EventFlow" Version="0.66.3673" />
+    <PackageReference Include="EventFlow.MsSql" Version="0.66.3673" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Racetimes.Domain\Racetimes.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

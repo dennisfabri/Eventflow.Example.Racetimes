@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		SQL\CreateTableEventFlowSnapshots.sql = SQL\CreateTableEventFlowSnapshots.sql
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racetimes.ReadModel.MsSql", "src\Racetimes.ReadModel.MsSQL\Racetimes.ReadModel.MsSql.csproj", "{5BDFD8F9-6810-4369-B3FF-2DA64AF86CAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,10 @@ Global
 		{7C814C8F-B109-4370-A5AE-92EF9654304B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7C814C8F-B109-4370-A5AE-92EF9654304B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7C814C8F-B109-4370-A5AE-92EF9654304B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BDFD8F9-6810-4369-B3FF-2DA64AF86CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BDFD8F9-6810-4369-B3FF-2DA64AF86CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BDFD8F9-6810-4369-B3FF-2DA64AF86CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BDFD8F9-6810-4369-B3FF-2DA64AF86CAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

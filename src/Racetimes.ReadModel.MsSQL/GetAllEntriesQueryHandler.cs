@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Racetimes.Domain.Readmodel
+namespace Racetimes.ReadModel.MsSql
 {
     public class GetAllEntriesQueryHandler : IQueryHandler<GetAllEntriesQuery, EntryReadModel[]>
     {

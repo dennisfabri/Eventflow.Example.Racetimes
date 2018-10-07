@@ -3,7 +3,6 @@ using Racetimes.Domain.Command;
 using Racetimes.Domain.CommandHandler;
 using Racetimes.Domain.Event;
 using Racetimes.Domain.Identity;
-using Racetimes.Domain.Readmodel;
 using EventFlow;
 using EventFlow.Extensions;
 using EventFlow.MsSql;
@@ -15,6 +14,7 @@ using log4net;
 using System.Reflection;
 using log4net.Config;
 using System.IO;
+using Racetimes.ReadModel.MsSql;
 
 namespace Racetimes.CommandLine
 {
@@ -77,7 +77,7 @@ namespace Racetimes.CommandLine
                     executionResult = commandBus.Publish(new ChangeEntryTimeCommand(exampleId, entry2Id, 2000 + x), CancellationToken.None);
                 }
 
-                executionResult = commandBus.Publish(new DeleteCompetitionCommand(exampleId), CancellationToken.None);
+                //executionResult = commandBus.Publish(new DeleteCompetitionCommand(exampleId), CancellationToken.None);
             }
             // Console.ReadLine();
         }

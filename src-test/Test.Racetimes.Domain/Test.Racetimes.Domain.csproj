@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Racetimes.Domain\Racetimes.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Racetimes.ReadModel.MsSQL\Racetimes.ReadModel.MsSql.csproj" />
   </ItemGroup>
 
 </Project>
