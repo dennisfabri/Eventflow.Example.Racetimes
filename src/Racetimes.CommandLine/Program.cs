@@ -72,9 +72,9 @@ namespace Racetimes.CommandLine
                     executionResult = commandBus.Publish(new ChangeEntryTimeCommand(exampleId, entry2Id, 2000 + x), CancellationToken.None);
                 }
 
-                //executionResult = commandBus.Publish(new DeleteCompetitionCommand(exampleId), CancellationToken.None);
+                executionResult = commandBus.Publish(new DeleteCompetitionCommand(exampleId), CancellationToken.None);
             }
-            // Console.ReadLine();
+            //Console.ReadLine();
         }
     }
 }

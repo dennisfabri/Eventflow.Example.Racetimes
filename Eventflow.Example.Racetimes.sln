@@ -14,8 +14,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A2C30EE5-0922-4018-8EC9-81287DB592E0}"
 	ProjectSection(SolutionItems) = preProject
 		SQL\CheckAndCleanup.sql = SQL\CheckAndCleanup.sql
+		cleanup.bat = cleanup.bat
 		SQL\CreateReadModelTables.sql = SQL\CreateReadModelTables.sql
 		SQL\CreateTableEventFlowSnapshots.sql = SQL\CreateTableEventFlowSnapshots.sql
+		LICENSE = LICENSE
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Racetimes.ReadModel.MsSql", "src\Racetimes.ReadModel.MsSQL\Racetimes.ReadModel.MsSql.csproj", "{5BDFD8F9-6810-4369-B3FF-2DA64AF86CAF}"

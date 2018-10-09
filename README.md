@@ -11,6 +11,7 @@ Basic features:
 
 Configuration:
 - MSSQL
+- EntityFramework
 - EventFlowOptions
 - Migration
 
