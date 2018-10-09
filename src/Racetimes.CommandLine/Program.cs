@@ -15,6 +15,7 @@ using System.Reflection;
 using log4net.Config;
 using System.IO;
 using Racetimes.ReadModel.MsSql;
+using Racetimes.ReadModel.EntityFramework;
 
 namespace Racetimes.CommandLine
 {
@@ -29,14 +30,11 @@ namespace Racetimes.CommandLine
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionRenamedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(RenameCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(RenameCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
-                .AddQueryHandler<GetAllEntriesQueryHandler, GetAllEntriesQuery, EntryReadModel[]>()
                 .AddSnapshots(typeof(CompetitionSnapshot))
-                .RegisterServices(sr => { sr.Register<IEntryLocator, EntryLocator>(); })
                 .UseMssqlEventStore()
                 .UseMsSqlSnapshotStore()
-                .UseMssqlReadModel<CompetitionReadModel>()
-                .UseMssqlReadModel<EntryReadModel, IEntryLocator>()
-                .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(@"Data Source=localhost;Initial Catalog=TimesEF;Integrated Security=SSPI;"))
+                .AddMsSqlReadModel()
+                .AddEntityFrameworkReadModel()
                 .CreateResolver())
             {
 
@@ -58,11 +56,8 @@ namespace Racetimes.CommandLine
 
                 executionResult = commandBus.Publish(new RenameCompetitionCommand(exampleId, name2), CancellationToken.None);
 
-                // Resolve the query handler and use the built-in query for fetching
-                // read models by identity to get our read model representing the
-                // state of our aggregate root
-                var queryProcessor = resolver.Resolve<IQueryProcessor>();
-                var exampleReadModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(exampleId), CancellationToken.None);
+                ReadModel.MsSql.ReadModelConfiguration.Query(resolver, exampleId);
+                ReadModel.EntityFramework.ReadModelConfiguration.Query(resolver, exampleId);
 
                 var entry1Id = EntryId.New;
                 var entry2Id = EntryId.New;

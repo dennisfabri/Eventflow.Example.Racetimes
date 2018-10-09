@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Racetimes.Domain\Racetimes.Domain.csproj" />
+    <ProjectReference Include="..\Racetimes.ReadModel.EntityFramework\Racetimes.ReadModel.EntityFramework.csproj" />
     <ProjectReference Include="..\Racetimes.ReadModel.MsSQL\Racetimes.ReadModel.MsSql.csproj" />
   </ItemGroup>
 
