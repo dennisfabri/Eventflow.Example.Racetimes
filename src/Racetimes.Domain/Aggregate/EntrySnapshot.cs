@@ -16,9 +16,9 @@ namespace Racetimes.Domain.Aggregate
             TimeInMillis = timeInMillis;
         }
 
-        public EntryId Id { get; private set; }
-        public string Name { get; private set; }
-        public string Discipline { get; private set; }
-        public int TimeInMillis { get; private set; }
+        public EntryId Id { get; }
+        public string Name { get; }
+        public string Discipline { get; }
+        public int TimeInMillis { get; }
     }
 }

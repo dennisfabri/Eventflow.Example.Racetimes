@@ -152,17 +152,10 @@ namespace Racetimes.Domain.Aggregate
 
         private CompetitionSnapshot CreateSnapshot(CancellationToken cancellationToken)
         {
-            CompetitionSnapshot cs = new CompetitionSnapshot()
-            {
-                Competitionname = Competitionname,
-                IsDeleted = IsDeleted,
-                User = User,
-                Entries = Entries.Select(e => e.CreateSnapshot()).ToArray()
-            };
-            return cs;
+            return new CompetitionSnapshot(Competitionname, User, IsDeleted, Entries.Select(e => e.CreateSnapshot()).ToArray());
         }
 
-        protected void LoadSnapshot(CompetitionSnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken)
+        private void LoadSnapshot(CompetitionSnapshot snapshot, ISnapshotMetadata metadata, CancellationToken cancellationToken)
         {
             Competitionname = snapshot.Competitionname;
             IsDeleted = snapshot.IsDeleted;

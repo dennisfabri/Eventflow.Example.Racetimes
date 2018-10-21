@@ -129,5 +129,11 @@ namespace Test.Racetimes.Domain
                 readModel.Should().BeNull();
             }
         }
+
+        [Fact]
+        public void CreateSnapshotTest()
+        {
+            // Todo: Determine a way of testing this
+        }
     }
 }
