@@ -11,11 +11,15 @@ using AutoFixture;
 using AutoFixture.AutoMoq;
 using System;
 using EventFlow.Core;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Test.Racetimes.Domain
 {
     public class SpecificationTest
     {
+        #region IsNewSpecification
+
         [Fact]
         public void IsNewPositiveTest()
         {
@@ -29,10 +33,85 @@ namespace Test.Racetimes.Domain
         {
             var spec = new IsNewSpecification<CompetitionAggregate>();
             var competition = new CompetitionAggregate(CompetitionId.New);
-            competition.ApplyEvents(new ReadOnlyCollection<IDomainEvent>(new IDomainEvent[] { ToDomainEvent(competition.Id, new CompetitionCreatedEvent("user", "name"), 1) }));
+            competition.ApplyEvents(ToDomainEvents(competition.Id, new CompetitionCreatedEvent("user", "name")));
             var isNew = spec.IsSatisfiedBy(competition);
             isNew.Should().BeFalse();
         }
+
+        #endregion
+
+        #region IsNotDeletedSpecification
+
+        [Fact]
+        public void IsNotDeletedPositiveTest()
+        {
+            var spec = new IsNotDeletedSpecification<CompetitionAggregate>();
+            var isDeleted = spec.IsSatisfiedBy(new CompetitionAggregate(CompetitionId.New));
+            isDeleted.Should().BeTrue();
+        }
+
+        [Fact]
+        public void IsNotDeletedNegativeTest()
+        {
+            var spec = new IsNotDeletedSpecification<CompetitionAggregate>();
+            var competition = new CompetitionAggregate(CompetitionId.New);
+            competition.ApplyEvents(ToDomainEvents(competition.Id, new CompetitionCreatedEvent("user", "name"), new CompetitionDeletedEvent(new EntryId[0].AsEnumerable())));
+            var isNew = spec.IsSatisfiedBy(competition);
+            isNew.Should().BeFalse();
+        }
+
+        #endregion
+
+        #region IsNotNewSpecification
+
+        [Fact]
+        public void IsNotNewPositiveTest()
+        {
+            var spec = new IsNotNewSpecification<CompetitionAggregate>();
+            var competition = new CompetitionAggregate(CompetitionId.New);
+            competition.ApplyEvents(ToDomainEvents(competition.Id, new CompetitionCreatedEvent("user", "name")));
+            var isNotNew = spec.IsSatisfiedBy(competition);
+            isNotNew.Should().BeTrue();
+        }
+
+        [Fact]
+        public void IsNotNewNegativeTest()
+        {
+            var spec = new IsNotNewSpecification<CompetitionAggregate>();
+            var isNotNew = spec.IsSatisfiedBy(new CompetitionAggregate(CompetitionId.New));
+            isNotNew.Should().BeFalse();
+        }
+
+        #endregion
+
+        #region IsNullOrEmptySpecification
+
+        [Fact]
+        public void IsNotNullOrEmptyPositiveTest()
+        {
+            var spec = new IsNotNullOrEmptySpecification("positive");
+            var isNotNullOrEmpty = spec.IsSatisfiedBy("test");
+            isNotNullOrEmpty.Should().BeTrue();
+        }
+
+        [Fact]
+        public void IsNotNullOrEmptyNegativeTest1()
+        {
+            var spec = new IsNotNullOrEmptySpecification("negative1");
+            var isNotNullOrEmpty1 = spec.IsSatisfiedBy(null);
+            isNotNullOrEmpty1.Should().BeFalse();
+        }
+
+        [Fact]
+        public void IsNotNullOrEmptyNegativeTest2()
+        {
+            var spec = new IsNotNullOrEmptySpecification("negative2");
+            var isNotNullOrEmpty2 = spec.IsSatisfiedBy("");
+            isNotNullOrEmpty2.Should().BeFalse();
+        }
+
+        #endregion
+
 
         #region Tools
 
@@ -46,7 +125,6 @@ namespace Test.Racetimes.Domain
             Fixture.Customize<CompetitionId>(x => x.FromFactory(() => CompetitionId.New));
             Fixture.Customize<EntryId>(x => x.FromFactory(() => EntryId.New));
             Fixture.Customize<EventId>(c => c.FromFactory(() => EventId.New));
-            // Fixture.Customize<Label>(s => s.FromFactory(() => Label.Named($"label-{Guid.NewGuid():D}")));
 
             DomainEventFactory = new DomainEventFactory();
         }
@@ -56,11 +134,11 @@ namespace Test.Racetimes.Domain
             return Fixture.Create<T>();
         }
 
-        protected IDomainEvent<CompetitionAggregate, CompetitionId> ToDomainEvent<TAggregateEvent>(
+        protected IDomainEvent<CompetitionAggregate, CompetitionId> ToDomainEvent(
             CompetitionId competitionId,
-            TAggregateEvent aggregateEvent,
-            int aggregateSequenceNumber = 0)
-            where TAggregateEvent : IAggregateEvent
+            IAggregateEvent aggregateEvent,
+            int aggregateSequenceNumber = 1)
+
         {
             var metadata = new Metadata
             {
@@ -78,6 +156,16 @@ namespace Test.Racetimes.Domain
                 metadata,
                 competitionId,
                 aggregateSequenceNumber);
+        }
+
+        protected IReadOnlyCollection<IDomainEvent> ToDomainEvents(CompetitionId competitionId, params IAggregateEvent[] events)
+        {
+            return ToDomainEvents(competitionId, 1, events);
+        }
+
+        protected IReadOnlyCollection<IDomainEvent> ToDomainEvents(CompetitionId competitionId, int sequenceNumber, params IAggregateEvent[] events)
+        {
+            return new ReadOnlyCollection<IDomainEvent>(events.Select((e, x) => ToDomainEvent(competitionId, e, sequenceNumber + x) as IDomainEvent).ToList());
         }
         #endregion
     }

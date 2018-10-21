@@ -1,7 +1,5 @@
 ﻿using EventFlow.Specifications;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Racetimes.Domain.Aggregate.Extension
 {
