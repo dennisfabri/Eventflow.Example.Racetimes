@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EventFlow" Version="0.66.3673" />
-    <PackageReference Include="EventFlow.MsSql" Version="0.66.3673" />
+    <PackageReference Include="EventFlow" Version="0.67.3697" />
+    <PackageReference Include="EventFlow.MsSql" Version="0.67.3697" />
   </ItemGroup>
 
   <ItemGroup>
