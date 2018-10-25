@@ -6,7 +6,7 @@ namespace Racetimes.Domain.Aggregate
 {
     [Serializable]
     [SnapshotVersion("Entry", 1)]
-    public class EntrySnapshot : ISnapshot
+    public class EntrySnapshot
     {
         public EntrySnapshot(EntryId id, string name, string discipline, int timeInMillis)
         {
