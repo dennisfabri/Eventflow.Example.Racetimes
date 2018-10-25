@@ -30,6 +30,5 @@ namespace Racetimes.ReadModel.EntityFramework
             var queryProcessor = resolver.Resolve<IQueryProcessor>();
             // var exampleReadModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(exampleId), CancellationToken.None);
         }
-
     }
 }
