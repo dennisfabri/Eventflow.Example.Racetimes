@@ -9,6 +9,7 @@ using EventFlow.Queries;
 using FluentAssertions;
 using Xunit;
 using Racetimes.ReadModel.MsSql;
+using Test.Racetimes.Domain.Extension;
 
 namespace Test.Racetimes.Domain
 {
@@ -21,6 +22,7 @@ namespace Test.Racetimes.Domain
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionRenamedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler))
+                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
                 .UseInMemoryReadStoreFor<CompetitionReadModel>()
                 .CreateResolver())
             {
@@ -57,6 +59,7 @@ namespace Test.Racetimes.Domain
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionRenamedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(RenameCompetitionCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(RenameCompetitionHandler))
+                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
                 .UseInMemoryReadStoreFor<CompetitionReadModel>()
                 .CreateResolver())
             {
@@ -98,6 +101,7 @@ namespace Test.Racetimes.Domain
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionDeletedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(DeleteCompetitionCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler))
+                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
                 .UseInMemoryReadStoreFor<CompetitionReadModel>()
                 .CreateResolver())
             {

@@ -8,7 +8,6 @@ using EventFlow.Extensions;
 using EventFlow.MsSql;
 using EventFlow.MsSql.EventStores;
 using EventFlow.MsSql.Extensions;
-using EventFlow.Queries;
 using Racetimes.Domain.Aggregate;
 using log4net;
 using System.Reflection;
@@ -16,6 +15,7 @@ using log4net.Config;
 using System.IO;
 using Racetimes.ReadModel.MsSql;
 using Racetimes.ReadModel.EntityFramework;
+using EventFlow.Snapshots.Strategies;
 
 namespace Racetimes.CommandLine
 {
@@ -31,6 +31,7 @@ namespace Racetimes.CommandLine
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(RenameCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(RenameCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
                 .AddSnapshots(typeof(CompetitionSnapshot))
+                .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.Default))
                 .UseMssqlEventStore()
                 .UseMsSqlSnapshotStore()
                 .AddMsSqlReadModel()

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using EventFlow;
 using EventFlow.Configuration;
 using EventFlow.Extensions;
@@ -14,7 +13,8 @@ namespace Racetimes.ReadModel.MsSql
     {
         public static IEventFlowOptions AddMsSqlReadModel(this IEventFlowOptions efo)
         {
-            return efo.RegisterServices(sr => { sr.Register<IEntryLocator, EntryLocator>(); })
+            return efo
+                .RegisterServices(sr => sr.Register<IEntryLocator, EntryLocator>())
                 .UseMssqlReadModel<CompetitionReadModel>()
                 .UseMssqlReadModel<EntryReadModel, IEntryLocator>()
                 .AddQueryHandler<GetAllEntriesQueryHandler, GetAllEntriesQuery, EntryReadModel[]>()

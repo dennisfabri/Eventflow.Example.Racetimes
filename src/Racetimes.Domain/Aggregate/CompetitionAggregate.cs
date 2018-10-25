@@ -36,7 +36,7 @@ namespace Racetimes.Domain.Aggregate
         private static ISpecification<string> IsNameEnteredSpecification = new IsNotNullOrEmptySpecification("name");
         private static ISpecification<string> IsUserEnteredSpecification = new IsNotNullOrEmptySpecification("user");
 
-        public CompetitionAggregate(CompetitionId id) : base(id, SnapshotEveryFewVersionsStrategy.Default) { }
+        public CompetitionAggregate(CompetitionId id, ISnapshotStrategy snapshotStrategy) : base(id, snapshotStrategy) { }
 
         #region Helpers
 

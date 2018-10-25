@@ -9,6 +9,7 @@ using EventFlow.Queries;
 using FluentAssertions;
 using Xunit;
 using Racetimes.ReadModel.MsSql;
+using Test.Racetimes.Domain.Extension;
 
 namespace Test.Racetimes.Domain
 {
@@ -21,7 +22,8 @@ namespace Test.Racetimes.Domain
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(EntryAddedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(AddEntryCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(AddEntryHandler))
-                .RegisterServices(sr => { sr.Register<IEntryLocator, EntryLocator>(); })
+                .RegisterServices(sr => sr.Register<IEntryLocator, EntryLocator>())
+                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
                 .UseInMemoryReadStoreFor<CompetitionReadModel>()
                 .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>()
                 .CreateResolver())
@@ -75,7 +77,8 @@ namespace Test.Racetimes.Domain
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
-                .RegisterServices(sr => { sr.Register<IEntryLocator, EntryLocator>(); })
+                .RegisterServices(sr => sr.Register<IEntryLocator, EntryLocator>())
+                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
                 .UseInMemoryReadStoreFor<CompetitionReadModel>()
                 .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>()
                 .CreateResolver())

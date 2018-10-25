@@ -6,6 +6,8 @@ using FluentAssertions;
 using Racetimes.Domain.Event;
 using System.Linq;
 using Test.Racetimes.Domain.Global;
+using EventFlow.Snapshots.Strategies;
+using Test.Racetimes.Domain.Extension;
 
 namespace Test.Racetimes.Domain
 {
@@ -17,7 +19,7 @@ namespace Test.Racetimes.Domain
         public void IsNewPositiveTest()
         {
             var spec = new IsNewSpecification<CompetitionAggregate>();
-            var isNew = spec.IsSatisfiedBy(new CompetitionAggregate(CompetitionId.New));
+            var isNew = spec.IsSatisfiedBy(new CompetitionAggregate(CompetitionId.New, SnapshotEveryFewVersionsStrategy.Default));
             isNew.Should().BeTrue();
         }
 
@@ -25,7 +27,7 @@ namespace Test.Racetimes.Domain
         public void IsNewNegativeTest()
         {
             var spec = new IsNewSpecification<CompetitionAggregate>();
-            var competition = new CompetitionAggregate(CompetitionId.New);
+            var competition = new CompetitionAggregate(CompetitionId.New, SnapshotNeverStrategy.Default);
             competition.ApplyEvents(ToDomainEvents(competition.Id, new CompetitionCreatedEvent("user", "name")));
             var isNew = spec.IsSatisfiedBy(competition);
             isNew.Should().BeFalse();
@@ -39,7 +41,7 @@ namespace Test.Racetimes.Domain
         public void IsNotDeletedPositiveTest()
         {
             var spec = new IsNotDeletedSpecification<CompetitionAggregate>();
-            var isDeleted = spec.IsSatisfiedBy(new CompetitionAggregate(CompetitionId.New));
+            var isDeleted = spec.IsSatisfiedBy(new CompetitionAggregate(CompetitionId.New, SnapshotNeverStrategy.Default));
             isDeleted.Should().BeTrue();
         }
 
@@ -47,7 +49,7 @@ namespace Test.Racetimes.Domain
         public void IsNotDeletedNegativeTest()
         {
             var spec = new IsNotDeletedSpecification<CompetitionAggregate>();
-            var competition = new CompetitionAggregate(CompetitionId.New);
+            var competition = new CompetitionAggregate(CompetitionId.New, SnapshotNeverStrategy.Default);
             competition.ApplyEvents(ToDomainEvents(competition.Id, new CompetitionCreatedEvent("user", "name"), new CompetitionDeletedEvent(new EntryId[0].AsEnumerable())));
             var isNew = spec.IsSatisfiedBy(competition);
             isNew.Should().BeFalse();
@@ -61,7 +63,7 @@ namespace Test.Racetimes.Domain
         public void IsNotNewPositiveTest()
         {
             var spec = new IsNotNewSpecification<CompetitionAggregate>();
-            var competition = new CompetitionAggregate(CompetitionId.New);
+            var competition = new CompetitionAggregate(CompetitionId.New, SnapshotNeverStrategy.Default);
             competition.ApplyEvents(ToDomainEvents(competition.Id, new CompetitionCreatedEvent("user", "name")));
             var isNotNew = spec.IsSatisfiedBy(competition);
             isNotNew.Should().BeTrue();
@@ -71,7 +73,7 @@ namespace Test.Racetimes.Domain
         public void IsNotNewNegativeTest()
         {
             var spec = new IsNotNewSpecification<CompetitionAggregate>();
-            var isNotNew = spec.IsSatisfiedBy(new CompetitionAggregate(CompetitionId.New));
+            var isNotNew = spec.IsSatisfiedBy(new CompetitionAggregate(CompetitionId.New, SnapshotNeverStrategy.Default));
             isNotNew.Should().BeFalse();
         }
 

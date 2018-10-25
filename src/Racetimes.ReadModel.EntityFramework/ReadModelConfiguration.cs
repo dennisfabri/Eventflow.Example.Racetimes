@@ -5,7 +5,6 @@ using EventFlow.EntityFramework.Extensions;
 using EventFlow.Extensions;
 using EventFlow.Queries;
 using Racetimes.Domain.Identity;
-using System.Threading;
 
 namespace Racetimes.ReadModel.EntityFramework
 {
@@ -13,11 +12,12 @@ namespace Racetimes.ReadModel.EntityFramework
     {
         public static IEventFlowOptions AddEntityFrameworkReadModel(this IEventFlowOptions efo)
         {
-            return efo.RegisterServices(sr => sr.Register<IEntryLocator, EntryLocator>())
+            return efo
+                .RegisterServices(sr => sr.Register<IEntryLocator, EntryLocator>())
+                .RegisterServices(sr => sr.Register(c => @"Data Source=localhost;Initial Catalog=TimesEF;Integrated Security=SSPI;"))
                 .UseEntityFrameworkReadModel<CompetitionReadModel, ExampleDbContext>()
                 .UseEntityFrameworkReadModel<EntryReadModel, ExampleDbContext, IEntryLocator>()
                 .AddQueryHandler<GetAllEntriesQueryHandler, GetAllEntriesQuery, EntryReadModel[]>()
-                .RegisterServices(sr => sr.Register(c => @"Data Source=localhost;Initial Catalog=TimesEF;Integrated Security=SSPI;"))
                 .ConfigureEntityFramework(EntityFrameworkConfiguration.New)
                 .AddDbContextProvider<ExampleDbContext, DbContextProvider>();
         }
