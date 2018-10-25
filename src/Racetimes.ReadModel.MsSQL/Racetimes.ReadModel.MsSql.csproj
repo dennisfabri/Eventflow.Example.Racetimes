@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Racetimes.Domain\Racetimes.Domain.csproj" />
+    <ProjectReference Include="..\Racetimes.ReadModel\Racetimes.ReadModel.csproj" />
   </ItemGroup>
 
 </Project>

@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Racetimes.ReadModel.MsSql",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Racetimes.ReadModel.EntityFramework", "src\Racetimes.ReadModel.EntityFramework\Racetimes.ReadModel.EntityFramework.csproj", "{18FC4825-8692-42DE-939C-0161CF3B30AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Racetimes.ReadModel", "src\Racetimes.ReadModel\Racetimes.ReadModel.csproj", "{14135FE4-2BC8-4162-9762-53276EB3D467}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{18FC4825-8692-42DE-939C-0161CF3B30AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18FC4825-8692-42DE-939C-0161CF3B30AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18FC4825-8692-42DE-939C-0161CF3B30AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14135FE4-2BC8-4162-9762-53276EB3D467}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14135FE4-2BC8-4162-9762-53276EB3D467}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14135FE4-2BC8-4162-9762-53276EB3D467}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14135FE4-2BC8-4162-9762-53276EB3D467}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

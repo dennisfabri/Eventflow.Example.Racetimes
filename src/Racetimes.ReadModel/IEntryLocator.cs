@@ -1,6 +1,6 @@
 ﻿using EventFlow.ReadStores;
 
-namespace Racetimes.ReadModel.EntityFramework
+namespace Racetimes.ReadModel
 {
     public interface IEntryLocator : IReadModelLocator
     {

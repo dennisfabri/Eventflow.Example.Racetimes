@@ -14,7 +14,6 @@ namespace Test.Racetimes.Domain.Global
 {
     public abstract class ATest
     {
-
         protected IFixture Fixture { get; private set; }
         protected IDomainEventFactory DomainEventFactory;
 
@@ -38,7 +37,6 @@ namespace Test.Racetimes.Domain.Global
             CompetitionId competitionId,
             IAggregateEvent aggregateEvent,
             int aggregateSequenceNumber = 1)
-
         {
             var metadata = new Metadata
             {

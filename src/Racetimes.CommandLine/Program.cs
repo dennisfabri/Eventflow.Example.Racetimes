@@ -38,7 +38,6 @@ namespace Racetimes.CommandLine
                 .AddEntityFrameworkReadModel()
                 .CreateResolver())
             {
-
                 var msSqlDatabaseMigrator = resolver.Resolve<IMsSqlDatabaseMigrator>();
                 EventFlowEventStoresMsSql.MigrateDatabase(msSqlDatabaseMigrator);
                 // var sql = EventFlowEventStoresMsSql.GetSqlScripts().Select(s => s.Content).ToArray();

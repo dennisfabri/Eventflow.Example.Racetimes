@@ -17,6 +17,16 @@ namespace Test.Racetimes.Domain
 {
     public class CompetitionTest
     {
+        private static IEventFlowOptions New
+        {
+            get {
+                return EventFlowOptions.New
+                    .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
+                    .UseInMemoryReadStoreFor<CompetitionReadModel>()
+                    ;
+            }
+        }
+
         [Theory]
         [InlineData("Test competition", "Test user", true)]
         [InlineData("Test competition", "", false)]
@@ -29,12 +39,10 @@ namespace Test.Racetimes.Domain
         [InlineData(null, null, false)]
         public void CreateTest(string name, string user, bool expectedResult)
         {
-            using (var resolver = EventFlowOptions.New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionRenamedEvent))
+            using (var resolver = New
+                .AddEvents(typeof(CompetitionCreatedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler))
-                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
-                .UseInMemoryReadStoreFor<CompetitionReadModel>()
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
@@ -73,12 +81,10 @@ namespace Test.Racetimes.Domain
         [InlineData(null, false)]
         public void RenameTest(string name2, bool expectedResult)
         {
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = New
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionRenamedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(RenameCompetitionCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(RenameCompetitionHandler))
-                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
-                .UseInMemoryReadStoreFor<CompetitionReadModel>()
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
@@ -87,8 +93,6 @@ namespace Test.Racetimes.Domain
                 // Define some important value
                 const string user = "test-user";
                 const string name1 = "test-competition";
-                const string emptyName = "";
-                const string nullName = null;
 
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
@@ -117,12 +121,10 @@ namespace Test.Racetimes.Domain
         [Fact]
         public void DeleteTest()
         {
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = New
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionDeletedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(DeleteCompetitionCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler))
-                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
-                .UseInMemoryReadStoreFor<CompetitionReadModel>()
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root

@@ -10,11 +10,25 @@ using FluentAssertions;
 using Xunit;
 using Racetimes.ReadModel.MsSql;
 using Test.Racetimes.Domain.Extension;
+using Racetimes.ReadModel;
 
 namespace Test.Racetimes.Domain
 {
     public class EntryTest
     {
+
+        private static IEventFlowOptions New
+        {
+            get {
+                return EventFlowOptions.New
+                    .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
+                    .RegisterServices(sr => sr.Register<IEntryLocator, EntryLocator>())
+                    .UseInMemoryReadStoreFor<CompetitionReadModel>()
+                    .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>()
+                    ;
+            }
+        }
+
         [Theory]
         [InlineData("Discipline", "Competitor", 12345, true)]
         [InlineData("", "Competitor", 12345, false)]
@@ -22,14 +36,10 @@ namespace Test.Racetimes.Domain
         [InlineData("Discipline", "Competitor", 0, false)]
         public void AddEntryTest(string discipline, string competitor, int time, bool expectedResult)
         {
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = New
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(EntryAddedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(AddEntryCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(AddEntryHandler))
-                .RegisterServices(sr => sr.Register<IEntryLocator, EntryLocator>())
-                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
-                .UseInMemoryReadStoreFor<CompetitionReadModel>()
-                .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>()
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
@@ -64,7 +74,6 @@ namespace Test.Racetimes.Domain
                 executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None);
                 executionResult.IsSuccess.Should().Be(expectedResult);
 
-
                 // Verify that the read model has the expected value
                 var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
 
@@ -89,14 +98,10 @@ namespace Test.Racetimes.Domain
         [InlineData(12345, 0, false)]
         public void ChangeEntryTimeTest(int time1, int time2, bool expectedResult)
         {
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = New
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
-                .RegisterServices(sr => sr.Register<IEntryLocator, EntryLocator>())
-                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
-                .UseInMemoryReadStoreFor<CompetitionReadModel>()
-                .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>()
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
@@ -163,14 +168,10 @@ namespace Test.Racetimes.Domain
         [Fact]
         public void ChangeEntryTimeOnMissingEntry()
         {
-            using (var resolver = EventFlowOptions.New
+            using (var resolver = New
                 .AddEvents(typeof(CompetitionCreatedEvent), typeof(EntryTimeChangedEvent))
                 .AddCommands(typeof(CreateCompetitionCommand), typeof(ChangeEntryTimeCommand))
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(ChangeEntryTimeHandler))
-                .RegisterServices(sr => sr.Register<IEntryLocator, EntryLocator>())
-                .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
-                .UseInMemoryReadStoreFor<CompetitionReadModel>()
-                .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>()
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
@@ -188,8 +189,6 @@ namespace Test.Racetimes.Domain
                 var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 
-                const string discipline = "Discipline";
-                const string competitor = "Competitor";
                 const int time = 12345;
 
                 // Resolve the query handler and use the built-in query for fetching
@@ -211,6 +210,5 @@ namespace Test.Racetimes.Domain
                 readModel3.Should().BeNull();
             }
         }
-
     }
 }

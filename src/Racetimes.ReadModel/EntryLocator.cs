@@ -1,16 +1,15 @@
 ﻿using EventFlow.Aggregates;
 using System.Collections.Generic;
-using System.Linq;
 using Racetimes.Domain.Aggregate;
 using Racetimes.Domain.Event;
 using Racetimes.Domain.Identity;
 
-namespace Racetimes.ReadModel.EntityFramework
+namespace Racetimes.ReadModel
 {
     public class EntryLocator : IEntryLocator
     {
         public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
-        {            
+        {
             var entryAdded = domainEvent as IDomainEvent<CompetitionAggregate, CompetitionId, EntryAddedEvent>;
             if (entryAdded != null)
             {

@@ -40,7 +40,6 @@ namespace Racetimes.Domain.Aggregate
         private static ISpecification<string> IsEntryNameEnteredSpecification = new IsNotNullOrEmptySpecification("name");
         private static ISpecification<int> IsEntryTimeEnteredSpecification = new IsAtLeastSpecification(1, "time");
 
-
         public CompetitionAggregate(CompetitionId id, ISnapshotStrategy snapshotStrategy) : base(id, snapshotStrategy) { }
 
         #region Helpers
