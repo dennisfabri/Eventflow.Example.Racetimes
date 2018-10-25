@@ -31,8 +31,10 @@ namespace Test.Racetimes.Domain
             }
         }
 
-        private static void PrepareCompetition(EventFlow.Configuration.IRootResolver resolver, CompetitionId domainId, string name, string user)
+        private static CompetitionId PrepareCompetition(EventFlow.Configuration.IRootResolver resolver, string name, string user)
         {
+            var domainId = CompetitionId.New;
+
             // Define some important value
             // Resolve the command bus and use it to publish a command
             var commandBus = resolver.Resolve<ICommandBus>();
@@ -52,6 +54,8 @@ namespace Test.Racetimes.Domain
             readModel1.AggregateId.Should().Be(domainId.Value);
             readModel1.Competitionname.Should().Be(name);
             readModel1.Username.Should().Be(user);
+
+            return domainId;
         }
 
         #endregion
@@ -69,14 +73,8 @@ namespace Test.Racetimes.Domain
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(AddEntryHandler))
                 .CreateResolver())
             {
-                // Create a new identity for our aggregate root
-                var domainId = CompetitionId.New;
+                var domainId = PrepareCompetition(resolver, "test-competition", "test-user");
                 var entryId = EntryId.New;
-
-                const string name = "test-competition";
-                const string user = "test-user";
-
-                PrepareCompetition(resolver, domainId, name, user);
 
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
                 var commandBus = resolver.Resolve<ICommandBus>();
@@ -117,14 +115,11 @@ namespace Test.Racetimes.Domain
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
                 .CreateResolver())
             {
-                // Create a new identity for our aggregate root
-                var domainId = CompetitionId.New;
-                var entryId = EntryId.New;
-
                 const string name = "test-competition";
                 const string user = "test-user";
 
-                PrepareCompetition(resolver, domainId, name, user);
+                var domainId = PrepareCompetition(resolver, name, user);
+                var entryId = EntryId.New;
 
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
@@ -146,6 +141,7 @@ namespace Test.Racetimes.Domain
                 readModel1.Should().NotBeNull();
                 readModel1.AggregateId.Should().Be(domainId.Value);
                 readModel1.Competitionname.Should().Be(name);
+                readModel1.Username.Should().Be(user);
 
                 // Verify that the read model has the expected value
                 var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
@@ -184,15 +180,11 @@ namespace Test.Racetimes.Domain
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(ChangeEntryTimeHandler))
                 .CreateResolver())
             {
-                // Create a new identity for our aggregate root
-                var domainId = CompetitionId.New;
-                var entryId = EntryId.New;
-
-                // Define some important value
                 const string name = "test-competition";
                 const string user = "test-user";
 
-                PrepareCompetition(resolver, domainId, name, user);
+                var domainId = PrepareCompetition(resolver, name, user);
+                var entryId = EntryId.New;
 
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
@@ -232,14 +224,7 @@ namespace Test.Racetimes.Domain
                 .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler))
                 .CreateResolver())
             {
-                // Create a new identity for our aggregate root
-                var domainId = CompetitionId.New;
-
-                // Define some important value
-                const string name = "test-competition";
-                const string user = "test-user";
-
-                PrepareCompetition(resolver, domainId, name, user);
+                var domainId = PrepareCompetition(resolver, "test-competition", "test-user");
 
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
@@ -304,14 +289,7 @@ namespace Test.Racetimes.Domain
                 .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.With(1)))
                 .CreateResolver())
             {
-                // Create a new identity for our aggregate root
-                var domainId = CompetitionId.New;
-
-                // Define some important value
-                const string name = "test-competition";
-                const string user = "test-user";
-
-                PrepareCompetition(resolver, domainId, name, user);
+                var domainId = PrepareCompetition(resolver, "test-competition", "test-user");
 
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
