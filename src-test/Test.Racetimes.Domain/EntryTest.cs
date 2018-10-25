@@ -13,6 +13,8 @@ using Test.Racetimes.Domain.Extension;
 using Racetimes.ReadModel;
 using Racetimes.Domain.Aggregate;
 using EventFlow.Snapshots.Strategies;
+using EventFlow.Configuration;
+using System;
 
 namespace Test.Racetimes.Domain
 {
@@ -31,9 +33,9 @@ namespace Test.Racetimes.Domain
             }
         }
 
-        private static CompetitionId PrepareCompetition(EventFlow.Configuration.IRootResolver resolver, string name, string user)
+        private static CompetitionId PrepareCompetition(EventFlow.Configuration.IRootResolver resolver, string name, string user, CompetitionId competitionId = null)
         {
-            var domainId = CompetitionId.New;
+            var domainId = competitionId ?? CompetitionId.New;
 
             // Define some important value
             // Resolve the command bus and use it to publish a command
@@ -219,47 +221,16 @@ namespace Test.Racetimes.Domain
         public void DeleteCompetitionTest(int amount)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler))
+                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
+                .AddCommands(typeof(CreateCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
+                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
                 .CreateResolver())
             {
-                var domainId = PrepareCompetition(resolver, "test-competition", "test-user");
+                var domainId = CompetitionId.New;
+                EntryId[] ids = CreateCompetitionWithEntries(resolver, amount, domainId);
 
-                // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
-
-                // Resolve the query handler and use the built-in query for fetching
-                // read models by identity to get our read model representing the
-                // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-
-                const string discipline = "Discipline";
-
-                EntryId[] ids = new EntryId[amount];
-
-                for (int x = 0; x < amount; x++)
-                {
-                    var entryId = EntryId.New;
-                    ids[x] = entryId;
-
-                    string competitor = string.Format("Competitor {0}", x + 1);
-                    int time = 12300 + x;
-
-                    // Add
-                    var executionResult1 = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None);
-                    executionResult1.IsSuccess.Should().BeTrue();
-
-                    // Verify that the read model has the expected value
-                    var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
-                    readModel2.Should().NotBeNull();
-                    readModel2.AggregateId.Should().Be(entryId.Value);
-                    readModel2.Discipline.Should().Be(discipline);
-                    readModel2.Competitor.Should().Be(competitor);
-                    readModel2.TimeInMillis.Should().Be(time);
-                }
-
-                // Preparation finished: Start with the test
 
                 // Delete
                 var executionResult = commandBus.Publish(new DeleteCompetitionCommand(domainId), CancellationToken.None);
@@ -289,45 +260,51 @@ namespace Test.Racetimes.Domain
                 .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.With(1)))
                 .CreateResolver())
             {
-                var domainId = PrepareCompetition(resolver, "test-competition", "test-user");
-
-                // Resolve the command bus and use it to publish a command
-                var commandBus = resolver.Resolve<ICommandBus>();
-
-                // Resolve the query handler and use the built-in query for fetching
-                // read models by identity to get our read model representing the
-                // state of our aggregate root
-                var queryProcessor = resolver.Resolve<IQueryProcessor>();
-
-                const string discipline = "Discipline";
-
-                EntryId[] ids = new EntryId[amount];
-
-                for (int x = 0; x < amount; x++)
-                {
-                    var entryId = EntryId.New;
-                    ids[x] = entryId;
-
-                    string competitor = string.Format("Competitor {0}", x + 1);
-                    int time = 12300 + x;
-
-                    // Add
-                    var executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time + 1), CancellationToken.None);
-                    executionResult.IsSuccess.Should().BeTrue();
-
-                    // Change time
-                    executionResult = commandBus.Publish(new ChangeEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
-                    executionResult.IsSuccess.Should().BeTrue();
-
-                    // Verify that the read model has the expected value
-                    var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
-                    readModel2.Should().NotBeNull();
-                    readModel2.AggregateId.Should().Be(entryId.Value);
-                    readModel2.Discipline.Should().Be(discipline);
-                    readModel2.Competitor.Should().Be(competitor);
-                    readModel2.TimeInMillis.Should().Be(time);
-                }
+                CreateCompetitionWithEntries(resolver, amount);
             }
+        }
+
+        private EntryId[] CreateCompetitionWithEntries(IRootResolver resolver, int amount, CompetitionId competitionId = null)
+        {
+            var domainId = PrepareCompetition(resolver, "test-competition", "test-user", competitionId);
+
+            // Resolve the command bus and use it to publish a command
+            var commandBus = resolver.Resolve<ICommandBus>();
+
+            // Resolve the query handler and use the built-in query for fetching
+            // read models by identity to get our read model representing the
+            // state of our aggregate root
+            var queryProcessor = resolver.Resolve<IQueryProcessor>();
+
+            const string discipline = "Discipline";
+
+            EntryId[] ids = new EntryId[amount];
+
+            for (int x = 0; x < amount; x++)
+            {
+                var entryId = EntryId.New;
+                ids[x] = entryId;
+
+                string competitor = string.Format("Competitor {0}", x + 1);
+                int time = 12300 + x;
+
+                // Add
+                var executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time + 1), CancellationToken.None);
+                executionResult.IsSuccess.Should().BeTrue();
+
+                // Change time
+                executionResult = commandBus.Publish(new ChangeEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
+                executionResult.IsSuccess.Should().BeTrue();
+
+                // Verify that the read model has the expected value
+                var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
+                readModel2.Should().NotBeNull();
+                readModel2.AggregateId.Should().Be(entryId.Value);
+                readModel2.Discipline.Should().Be(discipline);
+                readModel2.Competitor.Should().Be(competitor);
+                readModel2.TimeInMillis.Should().Be(time);
+            }
+            return ids;
         }
     }
 }
