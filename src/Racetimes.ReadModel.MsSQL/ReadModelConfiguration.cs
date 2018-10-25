@@ -21,13 +21,13 @@ namespace Racetimes.ReadModel.MsSql
                 .ConfigureMsSql(MsSqlConfiguration.New.SetConnectionString(@"Data Source=localhost;Initial Catalog=TimesEF;Integrated Security=SSPI;"));
         }
 
-        public static void Query(IRootResolver resolver, CompetitionId exampleId)
+        public static CompetitionReadModel Query(IRootResolver resolver, CompetitionId exampleId)
         {
             // Resolve the query handler and use the built-in query for fetching
             // read models by identity to get our read model representing the
             // state of our aggregate root
             var queryProcessor = resolver.Resolve<IQueryProcessor>();
-            var exampleReadModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(exampleId), CancellationToken.None);
+            return queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(exampleId), CancellationToken.None);
         }
     }
 }
