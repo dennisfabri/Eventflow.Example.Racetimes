@@ -7,12 +7,13 @@ namespace Racetimes.Domain.Aggregate.Extension
     public class IsNotNewSpecification<TAggregateRoot> : Specification<TAggregateRoot>
         where TAggregateRoot : IAggregateRoot
     {
+
+        private static readonly string[] Errors = new string[] { "Aggregate is new." };
+        private static readonly string[] NoErrors = new string[] { };
+
         protected override IEnumerable<string> IsNotSatisfiedBecause(TAggregateRoot i)
         {
-            if (i.IsNew)
-            {
-                yield return "Aggregate is new.";
-            }
+            return i.IsNew ? Errors : NoErrors;
         }
     }
 }

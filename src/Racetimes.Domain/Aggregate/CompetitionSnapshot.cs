@@ -14,7 +14,7 @@ namespace Racetimes.Domain.Aggregate
             Competitionname = competitionname;
             User = user;
             IsDeleted = isDeleted;
-            Entries = new ReadOnlyCollection<EntrySnapshot>(entries == null ? new EntrySnapshot[0] : entries);
+            Entries = new ReadOnlyCollection<EntrySnapshot>(new EntrySnapshot[0]);
         }
 
         public string Competitionname { get; }

@@ -21,9 +21,9 @@ namespace Test.Racetimes.Domain.Global
         {
             Fixture = new Fixture().Customize(new AutoMoqCustomization());
 
-            Fixture.Customize<CompetitionId>(x => x.FromFactory(() => CompetitionId.New));
-            Fixture.Customize<EntryId>(x => x.FromFactory(() => EntryId.New));
-            Fixture.Customize<EventId>(c => c.FromFactory(() => EventId.New));
+            // Fixture.Customize<CompetitionId>(x => x.FromFactory(() => CompetitionId.New));
+            // Fixture.Customize<EntryId>(x => x.FromFactory(() => EntryId.New));
+            // Fixture.Customize<EventId>(c => c.FromFactory(() => EventId.New));
 
             DomainEventFactory = new DomainEventFactory();
         }
@@ -43,11 +43,6 @@ namespace Test.Racetimes.Domain.Global
                 Timestamp = A<DateTimeOffset>(),
                 SourceId = A<SourceId>(),
             };
-
-            if (aggregateSequenceNumber == 0)
-            {
-                aggregateSequenceNumber = A<int>();
-            }
 
             return DomainEventFactory.Create<CompetitionAggregate, CompetitionId>(
                 aggregateEvent,

@@ -76,6 +76,7 @@ namespace Test.Racetimes.Domain
 
         [Theory]
         [InlineData("competition 1", true)]
+        [InlineData("test-competition", false)]        
         [InlineData("", false)]
         [InlineData(null, false)]
         public void RenameTest(string name2, bool expectedResult)
@@ -140,7 +141,7 @@ namespace Test.Racetimes.Domain
                 var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 
-                // Rename
+                // Delete
                 executionResult = commandBus.Publish(new DeleteCompetitionCommand(domainId), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 

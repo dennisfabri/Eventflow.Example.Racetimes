@@ -11,6 +11,8 @@ using Xunit;
 using Racetimes.ReadModel.MsSql;
 using Test.Racetimes.Domain.Extension;
 using Racetimes.ReadModel;
+using Racetimes.Domain.Aggregate;
+using EventFlow.Snapshots.Strategies;
 
 namespace Test.Racetimes.Domain
 {
@@ -206,6 +208,155 @@ namespace Test.Racetimes.Domain
 
                 var readModel3 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
                 readModel3.Should().BeNull();
+            }
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(10)]
+        public void DeleteCompetitionTest(int amount)
+        {
+            using (var resolver = New
+                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent))
+                .AddCommands(typeof(CreateCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand))
+                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler))
+                .CreateResolver())
+            {
+                // Create a new identity for our aggregate root
+                var domainId = CompetitionId.New;
+
+                // Define some important value
+                const string name = "test-competition";
+                const string user = "test-user";
+
+                // Resolve the command bus and use it to publish a command
+                var commandBus = resolver.Resolve<ICommandBus>();
+
+                // Create
+                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
+                executionResult.IsSuccess.Should().BeTrue();
+
+                // Resolve the query handler and use the built-in query for fetching
+                // read models by identity to get our read model representing the
+                // state of our aggregate root
+                var queryProcessor = resolver.Resolve<IQueryProcessor>();
+
+                // Verify that the read model has the expected value
+                var readModel1 = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+                readModel1.Should().NotBeNull();
+                readModel1.AggregateId.Should().Be(domainId.Value);
+                readModel1.Competitionname.Should().Be(name);
+
+                const string discipline = "Discipline";
+
+                EntryId[] ids = new EntryId[amount];
+
+                for (int x = 0; x < amount; x++)
+                {
+                    var entryId = EntryId.New;
+                    ids[x] = entryId;
+
+                    string competitor = string.Format("Competitor {0}", x + 1);
+                    int time = 12300 + x;
+
+                    // Add
+                    executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None);
+                    executionResult.IsSuccess.Should().BeTrue();
+
+                    // Verify that the read model has the expected value
+                    var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
+                    readModel2.Should().NotBeNull();
+                    readModel2.AggregateId.Should().Be(entryId.Value);
+                    readModel2.Discipline.Should().Be(discipline);
+                    readModel2.Competitor.Should().Be(competitor);
+                    readModel2.TimeInMillis.Should().Be(time);
+                }
+
+                // Preparation finished: Start with the test
+
+                // Delete
+                executionResult = commandBus.Publish(new DeleteCompetitionCommand(domainId), CancellationToken.None);
+                executionResult.IsSuccess.Should().BeTrue();
+
+                foreach (var entryId in ids)
+                {
+                    // Verify that the read model has the expected value
+                    var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
+                    readModel2.Should().BeNull();
+                }
+            }
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        [InlineData(10)]
+        public void CreateSnapshotTest(int amount)
+        {
+            using (var resolver = New
+                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
+                .AddCommands(typeof(CreateCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
+                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
+                .AddSnapshots(typeof(CompetitionSnapshot))
+                .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.With(1)))
+                .CreateResolver())
+            {
+                // Create a new identity for our aggregate root
+                var domainId = CompetitionId.New;
+
+                // Define some important value
+                const string name = "test-competition";
+                const string user = "test-user";
+
+                // Resolve the command bus and use it to publish a command
+                var commandBus = resolver.Resolve<ICommandBus>();
+
+                // Create
+                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
+                executionResult.IsSuccess.Should().BeTrue();
+
+                // Resolve the query handler and use the built-in query for fetching
+                // read models by identity to get our read model representing the
+                // state of our aggregate root
+                var queryProcessor = resolver.Resolve<IQueryProcessor>();
+
+                // Verify that the read model has the expected value
+                var readModel1 = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+                readModel1.Should().NotBeNull();
+                readModel1.AggregateId.Should().Be(domainId.Value);
+                readModel1.Competitionname.Should().Be(name);
+
+                const string discipline = "Discipline";
+
+                EntryId[] ids = new EntryId[amount];
+
+                for (int x = 0; x < amount; x++)
+                {
+                    var entryId = EntryId.New;
+                    ids[x] = entryId;
+
+                    string competitor = string.Format("Competitor {0}", x + 1);
+                    int time = 12300 + x;
+
+                    // Add
+                    executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time + 1), CancellationToken.None);
+                    executionResult.IsSuccess.Should().BeTrue();
+
+                    // Change time
+                    executionResult = commandBus.Publish(new ChangeEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
+                    executionResult.IsSuccess.Should().BeTrue();
+
+                    // Verify that the read model has the expected value
+                    var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
+                    readModel2.Should().NotBeNull();
+                    readModel2.AggregateId.Should().Be(entryId.Value);
+                    readModel2.Discipline.Should().Be(discipline);
+                    readModel2.Competitor.Should().Be(competitor);
+                    readModel2.TimeInMillis.Should().Be(time);
+                }
             }
         }
     }
