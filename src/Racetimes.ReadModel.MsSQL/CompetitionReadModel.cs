@@ -6,10 +6,7 @@ using EventFlow.ReadStores;
 
 namespace Racetimes.ReadModel.MsSql
 {
-    public class CompetitionReadModel : VersionedReadModel,
-        IAmReadModelFor<CompetitionAggregate, CompetitionId, CompetitionCreatedEvent>,
-        IAmReadModelFor<CompetitionAggregate, CompetitionId, CompetitionRenamedEvent>,
-        IAmReadModelFor<CompetitionAggregate, CompetitionId, CompetitionDeletedEvent>
+    public class CompetitionReadModel : VersionedReadModel, IAmReadModelForCompetitionAggregate
     {
         public string Competitionname { get; private set; }
         public string Username { get; private set; }

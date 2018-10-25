@@ -6,10 +6,7 @@ using EventFlow.ReadStores;
 
 namespace Racetimes.ReadModel.EntityFramework
 {
-    public class EntryReadModel : VersionedReadModel,
-        IAmReadModelFor<CompetitionAggregate, CompetitionId, EntryAddedEvent>,
-        IAmReadModelFor<CompetitionAggregate, CompetitionId, EntryTimeChangedEvent>,
-        IAmReadModelFor<CompetitionAggregate, CompetitionId, CompetitionDeletedEvent>
+    public class EntryReadModel : VersionedReadModel, IAmReadModelForEntryEntity
     {
         public string Discipline { get; private set; }
         public string Competitor { get; private set; }
