@@ -36,6 +36,11 @@ namespace Racetimes.Domain.Aggregate
         private static ISpecification<string> IsNameEnteredSpecification = new IsNotNullOrEmptySpecification("name");
         private static ISpecification<string> IsUserEnteredSpecification = new IsNotNullOrEmptySpecification("user");
 
+        private static ISpecification<string> IsEntryDisciplineEnteredSpecification = new IsNotNullOrEmptySpecification("discipline");
+        private static ISpecification<string> IsEntryNameEnteredSpecification = new IsNotNullOrEmptySpecification("name");
+        private static ISpecification<int> IsEntryTimeEnteredSpecification = new IsAtLeastSpecification(1, "time");
+
+
         public CompetitionAggregate(CompetitionId id, ISnapshotStrategy snapshotStrategy) : base(id, snapshotStrategy) { }
 
         #region Helpers
@@ -55,8 +60,12 @@ namespace Racetimes.Domain.Aggregate
             if (@event != null)
             {
                 Emit(@event);
+                return ir ?? ExecutionResult.Success();
             }
-            return ir ?? ExecutionResult.Success();
+            else
+            {
+                return ExecutionResult.Failed();
+            }
         }
 
         #endregion
@@ -105,14 +114,19 @@ namespace Racetimes.Domain.Aggregate
 
         internal IExecutionResult AddEntry(EntryId entryId, string discipline, string name, int timeInMillis)
         {
-            Emit(new EntryAddedEvent(entryId, discipline, name, timeInMillis));
-            return ExecutionResult.Success();
+            return ExecuteAfterValidation(
+                () => new EntryAddedEvent(entryId, discipline, name, timeInMillis),
+                () => IsEntryDisciplineEnteredSpecification.IsNotSatisfiedByAsExecutionResult(discipline),
+                () => IsEntryNameEnteredSpecification.IsNotSatisfiedByAsExecutionResult(name),
+                () => IsEntryTimeEnteredSpecification.IsNotSatisfiedByAsExecutionResult(timeInMillis)
+            );
         }
 
         internal IExecutionResult ChangeEntryTime(EntryId entryId, int timeInMillis)
         {
-            Emit(new EntryTimeChangedEvent(entryId, timeInMillis));
-            return ExecutionResult.Success();
+            return ExecuteAfterValidation(
+                () => Entries.FirstOrDefault(e => e.Id == entryId)?.ChangeTime(timeInMillis)
+                );
         }
 
         #endregion

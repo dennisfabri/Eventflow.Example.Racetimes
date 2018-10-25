@@ -1,5 +1,6 @@
-﻿using EventFlow.Entities;
-using System;
+﻿using EventFlow.Aggregates;
+using EventFlow.Entities;
+using Racetimes.Domain.Event;
 using Racetimes.Domain.Identity;
 
 namespace Racetimes.Domain.Aggregate
@@ -19,7 +20,20 @@ namespace Racetimes.Domain.Aggregate
 
         public EntryEntity(EntrySnapshot es) : this(es.Id, es.Discipline, es.Name, es.TimeInMillis) { }
 
-        public void ChangeTime(int timeInMillis)
+        internal IAggregateEvent<CompetitionAggregate, CompetitionId> ChangeTime(int timeInMillis)
+        {
+            if (timeInMillis <= 0)
+            {
+                return null;
+            }
+            if (TimeInMillis == timeInMillis)
+            {
+                return null;
+            }
+            return new EntryTimeChangedEvent(Id, timeInMillis);
+        }
+
+        internal void Apply(int timeInMillis)
         {
             TimeInMillis = timeInMillis;
         }
