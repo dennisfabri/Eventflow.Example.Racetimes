@@ -11,7 +11,6 @@ namespace Racetimes.Domain.Event
     [EventVersion("CompetitonRenamed", 1)]
     public class CompetitionRenamedEvent : IAggregateEvent<CompetitionAggregate, CompetitionId>
     {
-
         public string Name { get; private set; }
 
         public CompetitionRenamedEvent(string name)

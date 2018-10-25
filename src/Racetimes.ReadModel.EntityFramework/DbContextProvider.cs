@@ -26,6 +26,4 @@ namespace Racetimes.ReadModel.EntityFramework
         {
         }
     }
-
-
 }
