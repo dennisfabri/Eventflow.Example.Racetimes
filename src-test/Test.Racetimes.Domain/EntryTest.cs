@@ -18,6 +18,8 @@ namespace Test.Racetimes.Domain
 {
     public class EntryTest
     {
+        #region Helpers
+
         private static IEventFlowOptions New
         {
             get {
@@ -28,6 +30,31 @@ namespace Test.Racetimes.Domain
                     .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>();
             }
         }
+
+        private static void PrepareCompetition(EventFlow.Configuration.IRootResolver resolver, CompetitionId domainId, string name, string user)
+        {
+            // Define some important value
+            // Resolve the command bus and use it to publish a command
+            var commandBus = resolver.Resolve<ICommandBus>();
+
+            // Create
+            var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
+            executionResult.IsSuccess.Should().BeTrue();
+
+            // Resolve the query handler and use the built-in query for fetching
+            // read models by identity to get our read model representing the
+            // state of our aggregate root
+            var queryProcessor = resolver.Resolve<IQueryProcessor>();
+
+            // Verify that the read model has the expected value
+            var readModel1 = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+            readModel1.Should().NotBeNull();
+            readModel1.AggregateId.Should().Be(domainId.Value);
+            readModel1.Competitionname.Should().Be(name);
+            readModel1.Username.Should().Be(user);
+        }
+
+        #endregion
 
         [Theory]
         [InlineData("Discipline", "Competitor", 12345, true)]
@@ -46,32 +73,18 @@ namespace Test.Racetimes.Domain
                 var domainId = CompetitionId.New;
                 var entryId = EntryId.New;
 
-                // Define some important value
                 const string name = "test-competition";
                 const string user = "test-user";
 
-                // Resolve the command bus and use it to publish a command
-                var commandBus = resolver.Resolve<ICommandBus>();
+                PrepareCompetition(resolver, domainId, name, user);
 
-                // Create
-                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
-                executionResult.IsSuccess.Should().BeTrue();
-
-                // Resolve the query handler and use the built-in query for fetching
-                // read models by identity to get our read model representing the
-                // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-
-                // Verify that the read model has the expected value
-                var readModel1 = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
-                readModel1.Should().NotBeNull();
-                readModel1.AggregateId.Should().Be(domainId.Value);
-                readModel1.Competitionname.Should().Be(name);
+                var commandBus = resolver.Resolve<ICommandBus>();
 
                 // Preparation finished: Start with the test
 
                 // Rename
-                executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None);
+                var executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None);
                 executionResult.IsSuccess.Should().Be(expectedResult);
 
                 // Verify that the read model has the expected value
@@ -108,22 +121,19 @@ namespace Test.Racetimes.Domain
                 var domainId = CompetitionId.New;
                 var entryId = EntryId.New;
 
-                // Define some important value
                 const string name = "test-competition";
                 const string user = "test-user";
 
+                PrepareCompetition(resolver, domainId, name, user);
+
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
-
-                // Create
-                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
-                executionResult.IsSuccess.Should().BeTrue();
 
                 const string discipline = "Discipline";
                 const string competitor = "Competitor";
 
                 // Rename
-                executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time1), CancellationToken.None);
+                var executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time1), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Resolve the query handler and use the built-in query for fetching
@@ -182,12 +192,10 @@ namespace Test.Racetimes.Domain
                 const string name = "test-competition";
                 const string user = "test-user";
 
+                PrepareCompetition(resolver, domainId, name, user);
+
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
-
-                // Create
-                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
-                executionResult.IsSuccess.Should().BeTrue();
 
                 const int time = 12345;
 
@@ -203,7 +211,7 @@ namespace Test.Racetimes.Domain
                 readModel1.Competitionname.Should().Be(name);
 
                 // Preparations finished: Start test
-                executionResult = commandBus.Publish(new ChangeEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
+                var executionResult = commandBus.Publish(new ChangeEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeFalse();
 
                 var readModel3 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
@@ -231,23 +239,15 @@ namespace Test.Racetimes.Domain
                 const string name = "test-competition";
                 const string user = "test-user";
 
+                PrepareCompetition(resolver, domainId, name, user);
+
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
-
-                // Create
-                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
-                executionResult.IsSuccess.Should().BeTrue();
 
                 // Resolve the query handler and use the built-in query for fetching
                 // read models by identity to get our read model representing the
                 // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-
-                // Verify that the read model has the expected value
-                var readModel1 = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
-                readModel1.Should().NotBeNull();
-                readModel1.AggregateId.Should().Be(domainId.Value);
-                readModel1.Competitionname.Should().Be(name);
 
                 const string discipline = "Discipline";
 
@@ -262,8 +262,8 @@ namespace Test.Racetimes.Domain
                     int time = 12300 + x;
 
                     // Add
-                    executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None);
-                    executionResult.IsSuccess.Should().BeTrue();
+                    var executionResult1 = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None);
+                    executionResult1.IsSuccess.Should().BeTrue();
 
                     // Verify that the read model has the expected value
                     var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
@@ -277,7 +277,7 @@ namespace Test.Racetimes.Domain
                 // Preparation finished: Start with the test
 
                 // Delete
-                executionResult = commandBus.Publish(new DeleteCompetitionCommand(domainId), CancellationToken.None);
+                var executionResult = commandBus.Publish(new DeleteCompetitionCommand(domainId), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 
                 foreach (var entryId in ids)
@@ -311,23 +311,15 @@ namespace Test.Racetimes.Domain
                 const string name = "test-competition";
                 const string user = "test-user";
 
+                PrepareCompetition(resolver, domainId, name, user);
+
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
-
-                // Create
-                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
-                executionResult.IsSuccess.Should().BeTrue();
 
                 // Resolve the query handler and use the built-in query for fetching
                 // read models by identity to get our read model representing the
                 // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-
-                // Verify that the read model has the expected value
-                var readModel1 = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
-                readModel1.Should().NotBeNull();
-                readModel1.AggregateId.Should().Be(domainId.Value);
-                readModel1.Competitionname.Should().Be(name);
 
                 const string discipline = "Discipline";
 
@@ -342,7 +334,7 @@ namespace Test.Racetimes.Domain
                     int time = 12300 + x;
 
                     // Add
-                    executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time + 1), CancellationToken.None);
+                    var executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time + 1), CancellationToken.None);
                     executionResult.IsSuccess.Should().BeTrue();
 
                     // Change time
