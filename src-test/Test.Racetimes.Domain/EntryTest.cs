@@ -16,7 +16,6 @@ namespace Test.Racetimes.Domain
 {
     public class EntryTest
     {
-
         private static IEventFlowOptions New
         {
             get {
@@ -24,8 +23,7 @@ namespace Test.Racetimes.Domain
                     .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
                     .RegisterServices(sr => sr.Register<IEntryLocator, EntryLocator>())
                     .UseInMemoryReadStoreFor<CompetitionReadModel>()
-                    .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>()
-                    ;
+                    .UseInMemoryReadStoreFor<EntryReadModel, IEntryLocator>();
             }
         }
 

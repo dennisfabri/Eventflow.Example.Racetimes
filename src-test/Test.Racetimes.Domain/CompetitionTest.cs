@@ -22,8 +22,7 @@ namespace Test.Racetimes.Domain
             get {
                 return EventFlowOptions.New
                     .RegisterServices(sr => sr.Register(i => SnapshotNeverStrategy.Default))
-                    .UseInMemoryReadStoreFor<CompetitionReadModel>()
-                    ;
+                    .UseInMemoryReadStoreFor<CompetitionReadModel>();
             }
         }
 
