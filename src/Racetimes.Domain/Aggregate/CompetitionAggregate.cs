@@ -26,7 +26,7 @@ namespace Racetimes.Domain.Aggregate
     {
         public String Competitionname { get; private set; } = "";
         public String User { get; private set; } = "";
-        public IList<EntryEntity> Entries { get; private set; } = new List<EntryEntity>();
+        public List<EntryEntity> Entries { get; } = new List<EntryEntity>();
         public bool IsDeleted { get; private set; } = false;
 
         private static ISpecification<IDeletableAggregateRoot> IsNewSpecification = new IsNewSpecification<IDeletableAggregateRoot>();
@@ -173,7 +173,8 @@ namespace Racetimes.Domain.Aggregate
             Competitionname = snapshot.Competitionname;
             IsDeleted = snapshot.IsDeleted;
             User = snapshot.User;
-            Entries = new List<EntryEntity>(snapshot.Entries.Select(e => new EntryEntity(e)));
+            Entries.Clear();
+            Entries.AddRange(snapshot.Entries.Select(e => new EntryEntity(e)));
         }
 
         protected override Task<CompetitionSnapshot> CreateSnapshotAsync(CancellationToken cancellationToken)
