@@ -39,9 +39,9 @@ namespace Test.Racetimes.Domain
         public void CreateTest(string name, string user, bool expectedResult)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionCreatedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler))
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
@@ -51,7 +51,7 @@ namespace Test.Racetimes.Domain
                 var commandBus = resolver.Resolve<ICommandBus>();
 
                 // Create
-                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
+                var executionResult = commandBus.Publish(new RegisterCompetitionCommand(domainId, user, name), CancellationToken.None);
                 executionResult.IsSuccess.Should().Be(expectedResult);
 
                 // Resolve the query handler and use the built-in query for fetching
@@ -82,9 +82,9 @@ namespace Test.Racetimes.Domain
         public void RenameTest(string name2, bool expectedResult)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionRenamedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand), typeof(RenameCompetitionCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(RenameCompetitionHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionCorrectedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(RenameCompetitionCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(RenameCompetitionHandler))
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
@@ -98,7 +98,7 @@ namespace Test.Racetimes.Domain
                 var commandBus = resolver.Resolve<ICommandBus>();
 
                 // Create
-                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name1), CancellationToken.None);
+                var executionResult = commandBus.Publish(new RegisterCompetitionCommand(domainId, user, name1), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Rename
@@ -122,9 +122,9 @@ namespace Test.Racetimes.Domain
         public void DeleteTest()
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionDeletedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand), typeof(DeleteCompetitionCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionDeletedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(DeleteCompetitionCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(DeleteCompetitionHandler))
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
@@ -138,7 +138,7 @@ namespace Test.Racetimes.Domain
                 var commandBus = resolver.Resolve<ICommandBus>();
 
                 // Create
-                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
+                var executionResult = commandBus.Publish(new RegisterCompetitionCommand(domainId, user, name), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Delete
@@ -168,9 +168,9 @@ namespace Test.Racetimes.Domain
         public void CreateSnapshotTest(params string[] names)
         {
             using (var resolver = EventFlowOptions.New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionRenamedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand), typeof(RenameCompetitionCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(RenameCompetitionHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionCorrectedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(RenameCompetitionCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(RenameCompetitionHandler))
                 .AddSnapshots(typeof(CompetitionSnapshot))
                 .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.With(1)))
                 .UseInMemoryReadStoreFor<CompetitionReadModel>()
@@ -187,7 +187,7 @@ namespace Test.Racetimes.Domain
                 var commandBus = resolver.Resolve<ICommandBus>();
 
                 // Create
-                var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name1), CancellationToken.None);
+                var executionResult = commandBus.Publish(new RegisterCompetitionCommand(domainId, user, name1), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Resolve the query handler and use the built-in query for fetching

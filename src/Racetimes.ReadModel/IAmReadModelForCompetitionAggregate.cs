@@ -6,8 +6,8 @@ using Racetimes.Domain.Identity;
 namespace Racetimes.ReadModel
 {
     public interface IAmReadModelForCompetitionAggregate :
-        IAmReadModelFor<CompetitionAggregate, CompetitionId, CompetitionCreatedEvent>,
-        IAmReadModelFor<CompetitionAggregate, CompetitionId, CompetitionRenamedEvent>,
+        IAmReadModelFor<CompetitionAggregate, CompetitionId, CompetitionRegisteredEvent>,
+        IAmReadModelFor<CompetitionAggregate, CompetitionId, CompetitionCorrectedEvent>,
         IAmReadModelFor<CompetitionAggregate, CompetitionId, CompetitionDeletedEvent>
     {
     }

@@ -8,9 +8,9 @@ using EventFlow.Commands;
 
 namespace Racetimes.Domain.CommandHandler
 {
-    public class CreateCompetitionHandler : CommandHandler<CompetitionAggregate, CompetitionId, IExecutionResult, CreateCompetitionCommand>
+    public class RegisterCompetitionHandler : CommandHandler<CompetitionAggregate, CompetitionId, IExecutionResult, RegisterCompetitionCommand>
     {
-        public override Task<IExecutionResult> ExecuteCommandAsync(CompetitionAggregate aggregate, CreateCompetitionCommand command, CancellationToken cancellationToken)
+        public override Task<IExecutionResult> ExecuteCommandAsync(CompetitionAggregate aggregate, RegisterCompetitionCommand command, CancellationToken cancellationToken)
         {
             var executionResult = aggregate.Create(command.User, command.Name);
             return Task.FromResult(executionResult);

@@ -27,9 +27,9 @@ namespace Racetimes.CommandLine
             XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
             using (var resolver = EventFlowOptions.New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionRenamedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand), typeof(RenameCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(RenameCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionCorrectedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(RenameCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(CorrectEntryTimeCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(RenameCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(CorrectEntryTimeHandler))
                 .AddSnapshots(typeof(CompetitionSnapshot))
                 .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.Default))
                 .UseMssqlEventStore()
@@ -52,7 +52,7 @@ namespace Racetimes.CommandLine
 
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
-                var executionResult = commandBus.Publish(new CreateCompetitionCommand(exampleId, user, name), CancellationToken.None);
+                var executionResult = commandBus.Publish(new RegisterCompetitionCommand(exampleId, user, name), CancellationToken.None);
 
                 executionResult = commandBus.Publish(new RenameCompetitionCommand(exampleId, name2), CancellationToken.None);
 
@@ -64,12 +64,12 @@ namespace Racetimes.CommandLine
 
                 executionResult = commandBus.Publish(new AddEntryCommand(exampleId, entry1Id, "Discipline 1", "Name 1", 11111), CancellationToken.None);
                 executionResult = commandBus.Publish(new AddEntryCommand(exampleId, entry2Id, "Discipline 2", "Name 2", 22222), CancellationToken.None);
-                executionResult = commandBus.Publish(new ChangeEntryTimeCommand(exampleId, entry1Id, 10000), CancellationToken.None);
-                executionResult = commandBus.Publish(new ChangeEntryTimeCommand(exampleId, entry2Id, 20000), CancellationToken.None);
+                executionResult = commandBus.Publish(new CorrectEntryTimeCommand(exampleId, entry1Id, 10000), CancellationToken.None);
+                executionResult = commandBus.Publish(new CorrectEntryTimeCommand(exampleId, entry2Id, 20000), CancellationToken.None);
 
                 for (int x = 1; x < 100; x++)
                 {
-                    executionResult = commandBus.Publish(new ChangeEntryTimeCommand(exampleId, entry2Id, 2000 + x), CancellationToken.None);
+                    executionResult = commandBus.Publish(new CorrectEntryTimeCommand(exampleId, entry2Id, 2000 + x), CancellationToken.None);
                 }
 
                 executionResult = commandBus.Publish(new DeleteCompetitionCommand(exampleId), CancellationToken.None);

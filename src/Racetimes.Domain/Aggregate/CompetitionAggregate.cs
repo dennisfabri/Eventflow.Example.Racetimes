@@ -19,8 +19,8 @@ namespace Racetimes.Domain.Aggregate
     public class CompetitionAggregate :
         SnapshotAggregateRoot<CompetitionAggregate, CompetitionId, CompetitionSnapshot>,
         IDeletableAggregateRoot,
-        IEmit<CompetitionCreatedEvent>,
-        IEmit<CompetitionRenamedEvent>,
+        IEmit<CompetitionRegisteredEvent>,
+        IEmit<CompetitionCorrectedEvent>,
         IEmit<EntryAddedEvent>,
         IEmit<EntryTimeChangedEvent>
     {
@@ -86,7 +86,7 @@ namespace Racetimes.Domain.Aggregate
                 {
                     user = user.Trim();
                     name = name.Trim();
-                    return new CompetitionCreatedEvent(user, name);
+                    return new CompetitionRegisteredEvent(user, name);
                 },
                 () => IsNewSpecification.IsNotSatisfiedByAsExecutionResult(this),
                 () => IsNameEnteredSpecification.IsNotSatisfiedByAsExecutionResult(name),
@@ -102,7 +102,7 @@ namespace Racetimes.Domain.Aggregate
                         name = name.Trim();
                         if (!Competitionname.Equals(name))
                         {
-                            return new CompetitionRenamedEvent(name);
+                            return new CompetitionCorrectedEvent(name);
                         }
                         return null;
                     },
@@ -132,13 +132,13 @@ namespace Racetimes.Domain.Aggregate
 
         #region Apply
 
-        public void Apply(CompetitionCreatedEvent aggregateEvent)
+        public void Apply(CompetitionRegisteredEvent aggregateEvent)
         {
             Competitionname = aggregateEvent.Name;
             User = aggregateEvent.User;
         }
 
-        public void Apply(CompetitionRenamedEvent aggregateEvent)
+        public void Apply(CompetitionCorrectedEvent aggregateEvent)
         {
             Competitionname = aggregateEvent.Name;
         }

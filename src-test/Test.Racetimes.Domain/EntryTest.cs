@@ -42,7 +42,7 @@ namespace Test.Racetimes.Domain
             var commandBus = resolver.Resolve<ICommandBus>();
 
             // Create
-            var executionResult = commandBus.Publish(new CreateCompetitionCommand(domainId, user, name), CancellationToken.None);
+            var executionResult = commandBus.Publish(new RegisterCompetitionCommand(domainId, user, name), CancellationToken.None);
             executionResult.IsSuccess.Should().BeTrue();
 
             // Resolve the query handler and use the built-in query for fetching
@@ -70,9 +70,9 @@ namespace Test.Racetimes.Domain
         public void AddEntryTest(string discipline, string competitor, int time, bool expectedResult)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(EntryAddedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand), typeof(AddEntryCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(AddEntryHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(EntryAddedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(AddEntryCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(AddEntryHandler))
                 .CreateResolver())
             {
                 var domainId = PrepareCompetition(resolver, "test-competition", "test-user");
@@ -112,9 +112,9 @@ namespace Test.Racetimes.Domain
         public void ChangeEntryTimeTest(int time1, int time2, bool expectedResult)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(AddEntryCommand), typeof(CorrectEntryTimeCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(AddEntryHandler), typeof(CorrectEntryTimeHandler))
                 .CreateResolver())
             {
                 const string name = "test-competition";
@@ -155,7 +155,7 @@ namespace Test.Racetimes.Domain
 
                 // Preparations finished: Start test
 
-                executionResult = commandBus.Publish(new ChangeEntryTimeCommand(domainId, entryId, time2), CancellationToken.None);
+                executionResult = commandBus.Publish(new CorrectEntryTimeCommand(domainId, entryId, time2), CancellationToken.None);
                 executionResult.IsSuccess.Should().Be(expectedResult);
 
                 var readModel3 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
@@ -177,9 +177,9 @@ namespace Test.Racetimes.Domain
         public void ChangeEntryTimeOnMissingEntry()
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(EntryTimeChangedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand), typeof(ChangeEntryTimeCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(ChangeEntryTimeHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(EntryTimeChangedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(CorrectEntryTimeCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(CorrectEntryTimeHandler))
                 .CreateResolver())
             {
                 const string name = "test-competition";
@@ -205,7 +205,7 @@ namespace Test.Racetimes.Domain
                 readModel1.Competitionname.Should().Be(name);
 
                 // Preparations finished: Start test
-                var executionResult = commandBus.Publish(new ChangeEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
+                var executionResult = commandBus.Publish(new CorrectEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeFalse();
 
                 var readModel3 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
@@ -221,9 +221,9 @@ namespace Test.Racetimes.Domain
         public void DeleteCompetitionTest(int amount)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(CorrectEntryTimeCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(CorrectEntryTimeHandler))
                 .CreateResolver())
             {
                 var domainId = CompetitionId.New;
@@ -253,9 +253,9 @@ namespace Test.Racetimes.Domain
         public void CreateSnapshotTest(int amount)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionCreatedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
-                .AddCommands(typeof(CreateCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(ChangeEntryTimeCommand))
-                .AddCommandHandlers(typeof(CreateCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(ChangeEntryTimeHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(CorrectEntryTimeCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(CorrectEntryTimeHandler))
                 .AddSnapshots(typeof(CompetitionSnapshot))
                 .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.With(1)))
                 .CreateResolver())
@@ -293,7 +293,7 @@ namespace Test.Racetimes.Domain
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Change time
-                executionResult = commandBus.Publish(new ChangeEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
+                executionResult = commandBus.Publish(new CorrectEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Verify that the read model has the expected value

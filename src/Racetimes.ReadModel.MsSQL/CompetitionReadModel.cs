@@ -11,14 +11,14 @@ namespace Racetimes.ReadModel.MsSql
         public string Competitionname { get; private set; }
         public string Username { get; private set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<CompetitionAggregate, CompetitionId, CompetitionCreatedEvent> domainEvent)
+        public void Apply(IReadModelContext context, IDomainEvent<CompetitionAggregate, CompetitionId, CompetitionRegisteredEvent> domainEvent)
         {
             Competitionname = domainEvent.AggregateEvent.Name;
             Username = domainEvent.AggregateEvent.User;
             AggregateId = domainEvent.AggregateIdentity.Value;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<CompetitionAggregate, CompetitionId, CompetitionRenamedEvent> domainEvent)
+        public void Apply(IReadModelContext context, IDomainEvent<CompetitionAggregate, CompetitionId, CompetitionCorrectedEvent> domainEvent)
         {
             Competitionname = domainEvent.AggregateEvent.Name;
         }
