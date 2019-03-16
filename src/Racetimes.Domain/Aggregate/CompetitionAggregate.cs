@@ -21,8 +21,8 @@ namespace Racetimes.Domain.Aggregate
         IDeletableAggregateRoot,
         IEmit<CompetitionRegisteredEvent>,
         IEmit<CompetitionCorrectedEvent>,
-        IEmit<EntryAddedEvent>,
-        IEmit<EntryTimeChangedEvent>
+        IEmit<EntryRecordedEvent>,
+        IEmit<EntryTimeCorrectedEvent>
     {
         public String Competitionname { get; private set; } = "";
         public String User { get; private set; } = "";
@@ -114,7 +114,7 @@ namespace Racetimes.Domain.Aggregate
         internal IExecutionResult AddEntry(EntryId entryId, string discipline, string name, int timeInMillis)
         {
             return ExecuteAfterValidation(
-                () => new EntryAddedEvent(entryId, discipline, name, timeInMillis),
+                () => new EntryRecordedEvent(entryId, discipline, name, timeInMillis),
                 () => IsEntryDisciplineEnteredSpecification.IsNotSatisfiedByAsExecutionResult(discipline),
                 () => IsEntryNameEnteredSpecification.IsNotSatisfiedByAsExecutionResult(name),
                 () => IsEntryTimeEnteredSpecification.IsNotSatisfiedByAsExecutionResult(timeInMillis)
@@ -148,12 +148,12 @@ namespace Racetimes.Domain.Aggregate
             IsDeleted = true;
         }
 
-        public void Apply(EntryAddedEvent aggregateEvent)
+        public void Apply(EntryRecordedEvent aggregateEvent)
         {
             Entries.Add(new EntryEntity(aggregateEvent.EntryId, aggregateEvent.Discipline, aggregateEvent.Name, aggregateEvent.TimeInMillis));
         }
 
-        public void Apply(EntryTimeChangedEvent aggregateEvent)
+        public void Apply(EntryTimeCorrectedEvent aggregateEvent)
         {
             EntryEntity entry = Entries.First(e => e.Id == aggregateEvent.EntryId);
             entry.ChangeTime(aggregateEvent.TimeInMillis);

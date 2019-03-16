@@ -27,9 +27,9 @@ namespace Racetimes.CommandLine
             XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 
             using (var resolver = EventFlowOptions.New
-                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionCorrectedEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
-                .AddCommands(typeof(RegisterCompetitionCommand), typeof(RenameCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(CorrectEntryTimeCommand))
-                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(RenameCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(CorrectEntryTimeHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionCorrectedEvent), typeof(CompetitionDeletedEvent), typeof(EntryRecordedEvent), typeof(EntryTimeCorrectedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(CorrectCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(RecordEntryCommand), typeof(CorrectEntryTimeCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(CorrectCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(RecordEntryHandler), typeof(CorrectEntryTimeHandler))
                 .AddSnapshots(typeof(CompetitionSnapshot))
                 .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.Default))
                 .UseMssqlEventStore()
@@ -54,7 +54,7 @@ namespace Racetimes.CommandLine
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var executionResult = commandBus.Publish(new RegisterCompetitionCommand(exampleId, user, name), CancellationToken.None);
 
-                executionResult = commandBus.Publish(new RenameCompetitionCommand(exampleId, name2), CancellationToken.None);
+                executionResult = commandBus.Publish(new CorrectCompetitionCommand(exampleId, name2), CancellationToken.None);
 
                 ReadModel.MsSql.ReadModelConfiguration.Query(resolver, exampleId);
                 ReadModel.EntityFramework.ReadModelConfiguration.Query(resolver, exampleId);
@@ -62,8 +62,8 @@ namespace Racetimes.CommandLine
                 var entry1Id = EntryId.New;
                 var entry2Id = EntryId.New;
 
-                executionResult = commandBus.Publish(new AddEntryCommand(exampleId, entry1Id, "Discipline 1", "Name 1", 11111), CancellationToken.None);
-                executionResult = commandBus.Publish(new AddEntryCommand(exampleId, entry2Id, "Discipline 2", "Name 2", 22222), CancellationToken.None);
+                executionResult = commandBus.Publish(new RecordEntryCommand(exampleId, entry1Id, "Discipline 1", "Name 1", 11111), CancellationToken.None);
+                executionResult = commandBus.Publish(new RecordEntryCommand(exampleId, entry2Id, "Discipline 2", "Name 2", 22222), CancellationToken.None);
                 executionResult = commandBus.Publish(new CorrectEntryTimeCommand(exampleId, entry1Id, 10000), CancellationToken.None);
                 executionResult = commandBus.Publish(new CorrectEntryTimeCommand(exampleId, entry2Id, 20000), CancellationToken.None);
 

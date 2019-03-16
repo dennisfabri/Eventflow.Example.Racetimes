@@ -10,12 +10,12 @@ namespace Racetimes.ReadModel
     {
         public IEnumerable<string> GetReadModelIds(IDomainEvent domainEvent)
         {
-            var entryAdded = domainEvent as IDomainEvent<CompetitionAggregate, CompetitionId, EntryAddedEvent>;
+            var entryAdded = domainEvent as IDomainEvent<CompetitionAggregate, CompetitionId, EntryRecordedEvent>;
             if (entryAdded != null)
             {
                 yield return entryAdded.AggregateEvent.EntryId.Value;
             }
-            var entryChanged = domainEvent as IDomainEvent<CompetitionAggregate, CompetitionId, EntryTimeChangedEvent>;
+            var entryChanged = domainEvent as IDomainEvent<CompetitionAggregate, CompetitionId, EntryTimeCorrectedEvent>;
             if (entryChanged != null)
             {
                 yield return entryChanged.AggregateEvent.EntryId.Value;

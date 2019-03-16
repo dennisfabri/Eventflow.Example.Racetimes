@@ -12,7 +12,7 @@ namespace Racetimes.ReadModel.MsSql
         public string Competitor { get; private set; }
         public int TimeInMillis { get; private set; }
 
-        public void Apply(IReadModelContext context, IDomainEvent<CompetitionAggregate, CompetitionId, EntryAddedEvent> domainEvent)
+        public void Apply(IReadModelContext context, IDomainEvent<CompetitionAggregate, CompetitionId, EntryRecordedEvent> domainEvent)
         {
             Competitor = domainEvent.AggregateEvent.Name;
             Discipline = domainEvent.AggregateEvent.Discipline;
@@ -20,7 +20,7 @@ namespace Racetimes.ReadModel.MsSql
             AggregateId = domainEvent.AggregateEvent.EntryId.Value;
         }
 
-        public void Apply(IReadModelContext context, IDomainEvent<CompetitionAggregate, CompetitionId, EntryTimeChangedEvent> domainEvent)
+        public void Apply(IReadModelContext context, IDomainEvent<CompetitionAggregate, CompetitionId, EntryTimeCorrectedEvent> domainEvent)
         {
             TimeInMillis = domainEvent.AggregateEvent.TimeInMillis;
         }

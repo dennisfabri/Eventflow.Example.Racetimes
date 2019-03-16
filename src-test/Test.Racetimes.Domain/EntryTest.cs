@@ -67,12 +67,12 @@ namespace Test.Racetimes.Domain
         [InlineData("", "Competitor", 12345, false)]
         [InlineData("Discipline", "", 12345, false)]
         [InlineData("Discipline", "Competitor", 0, false)]
-        public void AddEntryTest(string discipline, string competitor, int time, bool expectedResult)
+        public void RecordEntryTest(string discipline, string competitor, int time, bool expectedResult)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(EntryAddedEvent))
-                .AddCommands(typeof(RegisterCompetitionCommand), typeof(AddEntryCommand))
-                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(AddEntryHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(EntryRecordedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(RecordEntryCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(RecordEntryHandler))
                 .CreateResolver())
             {
                 var domainId = PrepareCompetition(resolver, "test-competition", "test-user");
@@ -84,7 +84,7 @@ namespace Test.Racetimes.Domain
                 // Preparation finished: Start with the test
 
                 // Rename
-                var executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None);
+                var executionResult = commandBus.Publish(new RecordEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None);
                 executionResult.IsSuccess.Should().Be(expectedResult);
 
                 // Verify that the read model has the expected value
@@ -109,12 +109,12 @@ namespace Test.Racetimes.Domain
         [InlineData(12345, 12346, true)]
         [InlineData(12345, 12345, false)]
         [InlineData(12345, 0, false)]
-        public void ChangeEntryTimeTest(int time1, int time2, bool expectedResult)
+        public void CorrectEntryTimeTest(int time1, int time2, bool expectedResult)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
-                .AddCommands(typeof(RegisterCompetitionCommand), typeof(AddEntryCommand), typeof(CorrectEntryTimeCommand))
-                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(AddEntryHandler), typeof(CorrectEntryTimeHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(EntryRecordedEvent), typeof(EntryTimeCorrectedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(RecordEntryCommand), typeof(CorrectEntryTimeCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(RecordEntryHandler), typeof(CorrectEntryTimeHandler))
                 .CreateResolver())
             {
                 const string name = "test-competition";
@@ -130,7 +130,7 @@ namespace Test.Racetimes.Domain
                 const string competitor = "Competitor";
 
                 // Rename
-                var executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time1), CancellationToken.None);
+                var executionResult = commandBus.Publish(new RecordEntryCommand(domainId, entryId, discipline, competitor, time1), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Resolve the query handler and use the built-in query for fetching
@@ -174,10 +174,10 @@ namespace Test.Racetimes.Domain
             }
         }
         [Fact]
-        public void ChangeEntryTimeOnMissingEntry()
+        public void CorrectEntryTimeOnMissingEntry()
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(EntryTimeChangedEvent))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(EntryTimeCorrectedEvent))
                 .AddCommands(typeof(RegisterCompetitionCommand), typeof(CorrectEntryTimeCommand))
                 .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(CorrectEntryTimeHandler))
                 .CreateResolver())
@@ -221,13 +221,13 @@ namespace Test.Racetimes.Domain
         public void DeleteCompetitionTest(int amount)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
-                .AddCommands(typeof(RegisterCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(CorrectEntryTimeCommand))
-                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(CorrectEntryTimeHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionDeletedEvent), typeof(EntryRecordedEvent), typeof(EntryTimeCorrectedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(RecordEntryCommand), typeof(CorrectEntryTimeCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(RecordEntryHandler), typeof(CorrectEntryTimeHandler))
                 .CreateResolver())
             {
                 var domainId = CompetitionId.New;
-                EntryId[] ids = CreateCompetitionWithEntries(resolver, amount, domainId);
+                EntryId[] ids = RegisterCompetitionWithEntries(resolver, amount, domainId);
 
                 var commandBus = resolver.Resolve<ICommandBus>();
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
@@ -253,18 +253,18 @@ namespace Test.Racetimes.Domain
         public void CreateSnapshotTest(int amount)
         {
             using (var resolver = New
-                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionDeletedEvent), typeof(EntryAddedEvent), typeof(EntryTimeChangedEvent))
-                .AddCommands(typeof(RegisterCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(AddEntryCommand), typeof(CorrectEntryTimeCommand))
-                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(AddEntryHandler), typeof(CorrectEntryTimeHandler))
+                .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionDeletedEvent), typeof(EntryRecordedEvent), typeof(EntryTimeCorrectedEvent))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(DeleteCompetitionCommand), typeof(RecordEntryCommand), typeof(CorrectEntryTimeCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(RecordEntryHandler), typeof(CorrectEntryTimeHandler))
                 .AddSnapshots(typeof(CompetitionSnapshot))
                 .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.With(1)))
                 .CreateResolver())
             {
-                CreateCompetitionWithEntries(resolver, amount);
+                RegisterCompetitionWithEntries(resolver, amount);
             }
         }
 
-        private EntryId[] CreateCompetitionWithEntries(IRootResolver resolver, int amount, CompetitionId competitionId = null)
+        private EntryId[] RegisterCompetitionWithEntries(IRootResolver resolver, int amount, CompetitionId competitionId = null)
         {
             var domainId = PrepareCompetition(resolver, "test-competition", "test-user", competitionId);
 
@@ -289,7 +289,7 @@ namespace Test.Racetimes.Domain
                 int time = 12300 + x;
 
                 // Add
-                var executionResult = commandBus.Publish(new AddEntryCommand(domainId, entryId, discipline, competitor, time + 1), CancellationToken.None);
+                var executionResult = commandBus.Publish(new RecordEntryCommand(domainId, entryId, discipline, competitor, time + 1), CancellationToken.None);
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Change time

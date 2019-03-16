@@ -30,7 +30,7 @@ namespace Racetimes.Domain.Aggregate
             {
                 return null;
             }
-            return new EntryTimeChangedEvent(Id, timeInMillis);
+            return new EntryTimeCorrectedEvent(Id, timeInMillis);
         }
 
         internal void Apply(int timeInMillis)

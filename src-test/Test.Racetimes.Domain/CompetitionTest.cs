@@ -36,7 +36,7 @@ namespace Test.Racetimes.Domain
         [InlineData(null, "", false)]
         [InlineData("", null, false)]
         [InlineData(null, null, false)]
-        public void CreateTest(string name, string user, bool expectedResult)
+        public void RegisterTest(string name, string user, bool expectedResult)
         {
             using (var resolver = New
                 .AddEvents(typeof(CompetitionRegisteredEvent))
@@ -79,12 +79,12 @@ namespace Test.Racetimes.Domain
         [InlineData("test-competition", false)]        
         [InlineData("", false)]
         [InlineData(null, false)]
-        public void RenameTest(string name2, bool expectedResult)
+        public void CorrectTest(string name2, bool expectedResult)
         {
             using (var resolver = New
                 .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionCorrectedEvent))
-                .AddCommands(typeof(RegisterCompetitionCommand), typeof(RenameCompetitionCommand))
-                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(RenameCompetitionHandler))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(CorrectCompetitionCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(CorrectCompetitionHandler))
                 .CreateResolver())
             {
                 // Create a new identity for our aggregate root
@@ -102,7 +102,7 @@ namespace Test.Racetimes.Domain
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Rename
-                executionResult = commandBus.Publish(new RenameCompetitionCommand(domainId, name2), CancellationToken.None);
+                executionResult = commandBus.Publish(new CorrectCompetitionCommand(domainId, name2), CancellationToken.None);
                 executionResult.IsSuccess.Should().Be(expectedResult);
 
                 // Resolve the query handler and use the built-in query for fetching
@@ -169,8 +169,8 @@ namespace Test.Racetimes.Domain
         {
             using (var resolver = EventFlowOptions.New
                 .AddEvents(typeof(CompetitionRegisteredEvent), typeof(CompetitionCorrectedEvent))
-                .AddCommands(typeof(RegisterCompetitionCommand), typeof(RenameCompetitionCommand))
-                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(RenameCompetitionHandler))
+                .AddCommands(typeof(RegisterCompetitionCommand), typeof(CorrectCompetitionCommand))
+                .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(CorrectCompetitionHandler))
                 .AddSnapshots(typeof(CompetitionSnapshot))
                 .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.With(1)))
                 .UseInMemoryReadStoreFor<CompetitionReadModel>()
@@ -204,7 +204,7 @@ namespace Test.Racetimes.Domain
                 foreach (string name2 in names)
                 {
                     // Rename
-                    executionResult = commandBus.Publish(new RenameCompetitionCommand(domainId, name2), CancellationToken.None);
+                    executionResult = commandBus.Publish(new CorrectCompetitionCommand(domainId, name2), CancellationToken.None);
                     executionResult.IsSuccess.Should().BeTrue();
 
                     readModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);

@@ -5,14 +5,14 @@ using EventFlow.Commands;
 
 namespace Racetimes.Domain.Command
 {
-    public class AddEntryCommand : Command<CompetitionAggregate, CompetitionId, IExecutionResult>
+    public class RecordEntryCommand : Command<CompetitionAggregate, CompetitionId, IExecutionResult>
     {
         public EntryId EntryId { get; private set; }
         public string Name { get; private set; } = "";
         public string Discipline { get; private set; } = "";
         public int TimeInMillis { get; private set; } = 0;
 
-        public AddEntryCommand(CompetitionId id, EntryId entryId, string discipline, string name, int timeInMillis) : base(id)
+        public RecordEntryCommand(CompetitionId id, EntryId entryId, string discipline, string name, int timeInMillis) : base(id)
         {
             EntryId = entryId;
             Discipline = discipline;

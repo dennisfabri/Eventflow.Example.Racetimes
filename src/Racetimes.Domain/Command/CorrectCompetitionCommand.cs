@@ -5,11 +5,11 @@ using EventFlow.Commands;
 
 namespace Racetimes.Domain.Command
 {
-    public class RenameCompetitionCommand : Command<CompetitionAggregate, CompetitionId, IExecutionResult>
+    public class CorrectCompetitionCommand : Command<CompetitionAggregate, CompetitionId, IExecutionResult>
     {
         public string Name { get; private set; }
 
-        public RenameCompetitionCommand(CompetitionId id, string name) : base(id)
+        public CorrectCompetitionCommand(CompetitionId id, string name) : base(id)
         {
             Name = name;
         }
