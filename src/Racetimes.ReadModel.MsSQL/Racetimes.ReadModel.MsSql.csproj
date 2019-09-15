@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EventFlow" Version="0.74.3948" />
-    <PackageReference Include="EventFlow.MsSql" Version="0.74.3948" />
+    <PackageReference Include="EventFlow" Version="0.75.3970" />
+    <PackageReference Include="EventFlow.MsSql" Version="0.75.3970" />
   </ItemGroup>
 
   <ItemGroup>
