@@ -14,7 +14,6 @@ using Racetimes.ReadModel;
 using Racetimes.Domain.Aggregate;
 using EventFlow.Snapshots.Strategies;
 using EventFlow.Configuration;
-using System;
 
 namespace Test.Racetimes.Domain
 {

@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EventFlow" Version="0.79.4216" />
-    <PackageReference Include="EventFlow.MsSql" Version="0.79.4216" />
-    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="EventFlow" Version="0.80.4377" />
+    <PackageReference Include="EventFlow.MsSql" Version="0.80.4377" />
+    <PackageReference Include="log4net" Version="2.0.11" />
   </ItemGroup>
 
   <ItemGroup>
