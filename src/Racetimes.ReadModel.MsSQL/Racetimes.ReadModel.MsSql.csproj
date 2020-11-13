@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="EventFlow" Version="0.80.4377" />
     <PackageReference Include="EventFlow.MsSql" Version="0.80.4377" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

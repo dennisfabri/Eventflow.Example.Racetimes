@@ -16,6 +16,7 @@ using System.IO;
 using Racetimes.ReadModel.MsSql;
 using Racetimes.ReadModel.EntityFramework;
 using EventFlow.Snapshots.Strategies;
+using System.Configuration;
 
 namespace Racetimes.CommandLine
 {
@@ -32,6 +33,7 @@ namespace Racetimes.CommandLine
                 .AddCommandHandlers(typeof(RegisterCompetitionHandler), typeof(CorrectCompetitionHandler), typeof(DeleteCompetitionHandler), typeof(RecordEntryHandler), typeof(CorrectEntryTimeHandler))
                 .AddSnapshots(typeof(CompetitionSnapshot))
                 .RegisterServices(sr => sr.Register(i => SnapshotEveryFewVersionsStrategy.Default))
+                .RegisterServices(sr => sr.Register(c => ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString))
                 .UseMssqlEventStore()
                 .UseMsSqlSnapshotStore()
                 .AddMsSqlReadModel()
@@ -52,27 +54,27 @@ namespace Racetimes.CommandLine
 
                 // Resolve the command bus and use it to publish a command
                 var commandBus = resolver.Resolve<ICommandBus>();
-                var executionResult = commandBus.Publish(new RegisterCompetitionCommand(exampleId, user, name), CancellationToken.None);
+                var executionResult = commandBus.PublishAsync(new RegisterCompetitionCommand(exampleId, user, name), CancellationToken.None).Result;
 
-                executionResult = commandBus.Publish(new CorrectCompetitionCommand(exampleId, name2), CancellationToken.None);
+                executionResult = commandBus.PublishAsync(new CorrectCompetitionCommand(exampleId, name2), CancellationToken.None).Result;
 
-                ReadModel.MsSql.ReadModelConfiguration.Query(resolver, exampleId);
-                ReadModel.EntityFramework.ReadModelConfiguration.Query(resolver, exampleId);
+                ReadModel.MsSql.ReadModelConfiguration.Query(resolver, exampleId).Wait();
+                ReadModel.EntityFramework.ReadModelConfiguration.Query(resolver, exampleId).Wait();
 
                 var entry1Id = EntryId.New;
                 var entry2Id = EntryId.New;
 
-                executionResult = commandBus.Publish(new RecordEntryCommand(exampleId, entry1Id, "Discipline 1", "Name 1", 11111), CancellationToken.None);
-                executionResult = commandBus.Publish(new RecordEntryCommand(exampleId, entry2Id, "Discipline 2", "Name 2", 22222), CancellationToken.None);
-                executionResult = commandBus.Publish(new CorrectEntryTimeCommand(exampleId, entry1Id, 10000), CancellationToken.None);
-                executionResult = commandBus.Publish(new CorrectEntryTimeCommand(exampleId, entry2Id, 20000), CancellationToken.None);
+                commandBus.PublishAsync(new RecordEntryCommand(exampleId, entry1Id, "Discipline 1", "Name 1", 11111), CancellationToken.None).Wait();
+                commandBus.PublishAsync(new RecordEntryCommand(exampleId, entry2Id, "Discipline 2", "Name 2", 22222), CancellationToken.None).Wait();
+                commandBus.PublishAsync(new CorrectEntryTimeCommand(exampleId, entry1Id, 10000), CancellationToken.None).Wait();
+                commandBus.PublishAsync(new CorrectEntryTimeCommand(exampleId, entry2Id, 20000), CancellationToken.None).Wait();
 
                 for (int x = 1; x < 100; x++)
                 {
-                    executionResult = commandBus.Publish(new CorrectEntryTimeCommand(exampleId, entry2Id, 2000 + x), CancellationToken.None);
+                    commandBus.PublishAsync(new CorrectEntryTimeCommand(exampleId, entry2Id, 2000 + x), CancellationToken.None).Wait();
                 }
 
-                executionResult = commandBus.Publish(new DeleteCompetitionCommand(exampleId), CancellationToken.None);
+                commandBus.PublishAsync(new DeleteCompetitionCommand(exampleId), CancellationToken.None).Wait();
             }
             //Console.ReadLine();
         }

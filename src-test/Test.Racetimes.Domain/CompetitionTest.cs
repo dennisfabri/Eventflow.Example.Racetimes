@@ -51,14 +51,14 @@ namespace Test.Racetimes.Domain
                 var commandBus = resolver.Resolve<ICommandBus>();
 
                 // Create
-                var executionResult = commandBus.Publish(new RegisterCompetitionCommand(domainId, user, name), CancellationToken.None);
+                var executionResult = commandBus.PublishAsync(new RegisterCompetitionCommand(domainId, user, name), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().Be(expectedResult);
 
                 // Resolve the query handler and use the built-in query for fetching
                 // read models by identity to get our read model representing the
                 // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-                var readModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+                var readModel = queryProcessor.ProcessAsync(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None).Result;
 
                 if (expectedResult)
                 {
@@ -98,18 +98,18 @@ namespace Test.Racetimes.Domain
                 var commandBus = resolver.Resolve<ICommandBus>();
 
                 // Create
-                var executionResult = commandBus.Publish(new RegisterCompetitionCommand(domainId, user, name1), CancellationToken.None);
+                var executionResult = commandBus.PublishAsync(new RegisterCompetitionCommand(domainId, user, name1), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Rename
-                executionResult = commandBus.Publish(new CorrectCompetitionCommand(domainId, name2), CancellationToken.None);
+                executionResult = commandBus.PublishAsync(new CorrectCompetitionCommand(domainId, name2), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().Be(expectedResult);
 
                 // Resolve the query handler and use the built-in query for fetching
                 // read models by identity to get our read model representing the
                 // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-                var readModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+                var readModel = queryProcessor.ProcessAsync(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None).Result;
 
                 // Verify that the read model has the expected values
                 readModel.Should().NotBeNull();
@@ -138,24 +138,24 @@ namespace Test.Racetimes.Domain
                 var commandBus = resolver.Resolve<ICommandBus>();
 
                 // Create
-                var executionResult = commandBus.Publish(new RegisterCompetitionCommand(domainId, user, name), CancellationToken.None);
+                var executionResult = commandBus.PublishAsync(new RegisterCompetitionCommand(domainId, user, name), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Delete
-                executionResult = commandBus.Publish(new DeleteCompetitionCommand(domainId), CancellationToken.None);
+                executionResult = commandBus.PublishAsync(new DeleteCompetitionCommand(domainId), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Resolve the query handler and use the built-in query for fetching
                 // read models by identity to get our read model representing the
                 // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-                var readModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+                var readModel = queryProcessor.ProcessAsync(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None).Result;
 
                 // Readmodel has been deleted
                 readModel.Should().BeNull();
 
                 // Cannot delete twice
-                executionResult = commandBus.Publish(new DeleteCompetitionCommand(domainId), CancellationToken.None);
+                executionResult = commandBus.PublishAsync(new DeleteCompetitionCommand(domainId), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().BeFalse();
             }
         }
@@ -187,14 +187,14 @@ namespace Test.Racetimes.Domain
                 var commandBus = resolver.Resolve<ICommandBus>();
 
                 // Create
-                var executionResult = commandBus.Publish(new RegisterCompetitionCommand(domainId, user, name1), CancellationToken.None);
+                var executionResult = commandBus.PublishAsync(new RegisterCompetitionCommand(domainId, user, name1), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Resolve the query handler and use the built-in query for fetching
                 // read models by identity to get our read model representing the
                 // state of our aggregate root
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
-                var readModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+                var readModel = queryProcessor.ProcessAsync(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None).Result;
 
                 // Verify that the read model has the expected values
                 readModel.Should().NotBeNull();
@@ -204,10 +204,10 @@ namespace Test.Racetimes.Domain
                 foreach (string name2 in names)
                 {
                     // Rename
-                    executionResult = commandBus.Publish(new CorrectCompetitionCommand(domainId, name2), CancellationToken.None);
+                    executionResult = commandBus.PublishAsync(new CorrectCompetitionCommand(domainId, name2), CancellationToken.None).Result;
                     executionResult.IsSuccess.Should().BeTrue();
 
-                    readModel = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+                    readModel = queryProcessor.ProcessAsync(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None).Result;
 
                     // Verify that the read model has the expected values
                     readModel.AggregateId.Should().Be(domainId.Value);

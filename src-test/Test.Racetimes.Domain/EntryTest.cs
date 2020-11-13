@@ -41,7 +41,7 @@ namespace Test.Racetimes.Domain
             var commandBus = resolver.Resolve<ICommandBus>();
 
             // Create
-            var executionResult = commandBus.Publish(new RegisterCompetitionCommand(domainId, user, name), CancellationToken.None);
+            var executionResult = commandBus.PublishAsync(new RegisterCompetitionCommand(domainId, user, name), CancellationToken.None).Result;
             executionResult.IsSuccess.Should().BeTrue();
 
             // Resolve the query handler and use the built-in query for fetching
@@ -50,7 +50,7 @@ namespace Test.Racetimes.Domain
             var queryProcessor = resolver.Resolve<IQueryProcessor>();
 
             // Verify that the read model has the expected value
-            var readModel1 = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+            var readModel1 = queryProcessor.ProcessAsync(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None).Result;
             readModel1.Should().NotBeNull();
             readModel1.AggregateId.Should().Be(domainId.Value);
             readModel1.Competitionname.Should().Be(name);
@@ -83,11 +83,11 @@ namespace Test.Racetimes.Domain
                 // Preparation finished: Start with the test
 
                 // Rename
-                var executionResult = commandBus.Publish(new RecordEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None);
+                var executionResult = commandBus.PublishAsync(new RecordEntryCommand(domainId, entryId, discipline, competitor, time), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().Be(expectedResult);
 
                 // Verify that the read model has the expected value
-                var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
+                var readModel2 = queryProcessor.ProcessAsync(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None).Result;
 
                 if (expectedResult)
                 {
@@ -129,7 +129,7 @@ namespace Test.Racetimes.Domain
                 const string competitor = "Competitor";
 
                 // Rename
-                var executionResult = commandBus.Publish(new RecordEntryCommand(domainId, entryId, discipline, competitor, time1), CancellationToken.None);
+                var executionResult = commandBus.PublishAsync(new RecordEntryCommand(domainId, entryId, discipline, competitor, time1), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Resolve the query handler and use the built-in query for fetching
@@ -138,14 +138,14 @@ namespace Test.Racetimes.Domain
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
 
                 // Verify that the read model has the expected value
-                var readModel1 = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+                var readModel1 = queryProcessor.ProcessAsync(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None).Result;
                 readModel1.Should().NotBeNull();
                 readModel1.AggregateId.Should().Be(domainId.Value);
                 readModel1.Competitionname.Should().Be(name);
                 readModel1.Username.Should().Be(user);
 
                 // Verify that the read model has the expected value
-                var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
+                var readModel2 = queryProcessor.ProcessAsync(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None).Result;
                 readModel2.Should().NotBeNull();
                 readModel2.AggregateId.Should().Be(entryId.Value);
                 readModel2.Discipline.Should().Be(discipline);
@@ -154,10 +154,10 @@ namespace Test.Racetimes.Domain
 
                 // Preparations finished: Start test
 
-                executionResult = commandBus.Publish(new CorrectEntryTimeCommand(domainId, entryId, time2), CancellationToken.None);
+                executionResult = commandBus.PublishAsync(new CorrectEntryTimeCommand(domainId, entryId, time2), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().Be(expectedResult);
 
-                var readModel3 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
+                var readModel3 = queryProcessor.ProcessAsync(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None).Result;
                 readModel3.Should().NotBeNull();
                 readModel3.AggregateId.Should().Be(entryId.Value);
                 readModel3.Discipline.Should().Be(discipline);
@@ -198,16 +198,16 @@ namespace Test.Racetimes.Domain
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
 
                 // Verify that the read model has the expected value
-                var readModel1 = queryProcessor.Process(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None);
+                var readModel1 = queryProcessor.ProcessAsync(new ReadModelByIdQuery<CompetitionReadModel>(domainId), CancellationToken.None).Result;
                 readModel1.Should().NotBeNull();
                 readModel1.AggregateId.Should().Be(domainId.Value);
                 readModel1.Competitionname.Should().Be(name);
 
                 // Preparations finished: Start test
-                var executionResult = commandBus.Publish(new CorrectEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
+                var executionResult = commandBus.PublishAsync(new CorrectEntryTimeCommand(domainId, entryId, time), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().BeFalse();
 
-                var readModel3 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
+                var readModel3 = queryProcessor.ProcessAsync(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None).Result;
                 readModel3.Should().BeNull();
             }
         }
@@ -232,13 +232,13 @@ namespace Test.Racetimes.Domain
                 var queryProcessor = resolver.Resolve<IQueryProcessor>();
 
                 // Delete
-                var executionResult = commandBus.Publish(new DeleteCompetitionCommand(domainId), CancellationToken.None);
+                var executionResult = commandBus.PublishAsync(new DeleteCompetitionCommand(domainId), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().BeTrue();
 
                 foreach (var entryId in ids)
                 {
                     // Verify that the read model has the expected value
-                    var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
+                    var readModel2 = queryProcessor.ProcessAsync(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None).Result;
                     readModel2.Should().BeNull();
                 }
             }
@@ -288,15 +288,15 @@ namespace Test.Racetimes.Domain
                 int time = 12300 + x;
 
                 // Add
-                var executionResult = commandBus.Publish(new RecordEntryCommand(domainId, entryId, discipline, competitor, time + 1), CancellationToken.None);
+                var executionResult = commandBus.PublishAsync(new RecordEntryCommand(domainId, entryId, discipline, competitor, time + 1), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Change time
-                executionResult = commandBus.Publish(new CorrectEntryTimeCommand(domainId, entryId, time), CancellationToken.None);
+                executionResult = commandBus.PublishAsync(new CorrectEntryTimeCommand(domainId, entryId, time), CancellationToken.None).Result;
                 executionResult.IsSuccess.Should().BeTrue();
 
                 // Verify that the read model has the expected value
-                var readModel2 = queryProcessor.Process(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None);
+                var readModel2 = queryProcessor.ProcessAsync(new ReadModelByIdQuery<EntryReadModel>(entryId), CancellationToken.None).Result;
                 readModel2.Should().NotBeNull();
                 readModel2.AggregateId.Should().Be(entryId.Value);
                 readModel2.Discipline.Should().Be(discipline);
