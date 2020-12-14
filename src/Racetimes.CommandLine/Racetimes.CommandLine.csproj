@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EventFlow" Version="0.80.4377" />
-    <PackageReference Include="EventFlow.MsSql" Version="0.80.4377" />
+    <PackageReference Include="EventFlow" Version="0.81.4483" />
+    <PackageReference Include="EventFlow.MsSql" Version="0.81.4483" />
     <PackageReference Include="log4net" Version="2.0.12" />
     <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="3.2.26">
       <PrivateAssets>all</PrivateAssets>
