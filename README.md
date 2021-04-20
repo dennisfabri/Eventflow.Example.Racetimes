@@ -31,4 +31,4 @@ This is still a work in progress but I enjoy hearing from you (especially feedba
 
 # Sources
 
-The code is based on the official documentation as well as code from the tests within the eventflow repository.
+The code is based on the official documentation as well as code from the tests within the [eventflow repository](https://github.com/eventflow/EventFlow).
